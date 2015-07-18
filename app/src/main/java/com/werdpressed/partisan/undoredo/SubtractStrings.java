@@ -81,6 +81,8 @@ public class SubtractStrings {
 
         findDeviations(oldText, newText);
 
+        offsetCheckResult(oldText, newText);
+
         if (newText.length >= oldText.length) {
             return newString.substring(firstDeviation, lastDeviation);
         } else {
@@ -107,40 +109,69 @@ public class SubtractStrings {
         }
     }
 
-    private boolean offsetCheckResult(char[] oldText, char[] newText) {
-
-    int offsetValue;
+    private void offsetCheckResult(char[] oldText, char[] newText) {
 
         if (oldText.length > newText.length) {
-            offsetValue = findOffsetSize(oldText, newText);
-            lastDeviation = offsetValue;
+            sendLogInfo("oldText > newText");
+            lastDeviation = findOffsetSize(oldText, newText);
         } else if (newText.length > oldText.length) {
-            offsetValue = findOffsetSize(newText, oldText);
-            lastDeviation = offsetValue;
-        } else if (newText.length == oldText.length){
-            return false;
+            sendLogInfo("newText > oldText");
+            lastDeviation = findOffsetSize(newText, oldText);
         }
-        return false;
+
     }
 
     private int findOffsetSize(char[] largeText, char[] smallText) {
 
         int potentialOffsetSize = largeText.length - smallText.length;
-        int maxValue;
+        int maxCalculatedValue, absoluteMaxValue, cycleLimit;
         boolean condition;
 
-        condition = ((lastDeviation + potentialOffsetSize) < largeText.length);
-        maxValue = (condition) ? (lastDeviation + potentialOffsetSize) : (largeText.length - 1);
+        sendLogInfo("lastDeviation is " + lastDeviation);
+        //condition = ((lastDeviation + potentialOffsetSize) < largeText.length);
+        condition = ((tempReverseDeviation + potentialOffsetSize) < largeText.length);
 
-        largeText = reverseText(largeText);
+        sendLogInfo("condition is " + condition);
 
-        for (int i = lastDeviation; i < maxValue; i++){
-            if (largeText[i] == largeText[i - potentialOffsetSize]) {
-                return (largeText.length + (i - lastDeviation));
+        maxCalculatedValue = (condition) ? (tempReverseDeviation + potentialOffsetSize) : (largeText.length);
+
+        absoluteMaxValue = tempReverseDeviation + 1 + potentialOffsetSize;
+        //if (absoluteMaxValue < maxCalculatedValue) maxCalculatedValue = absoluteMaxValue;
+
+        sendLogInfo("maxCalculatedValue is " + maxCalculatedValue + " and potentialOffsetSet is " + potentialOffsetSize);
+        sendLogInfo("tempReverseDeviation is " + tempReverseDeviation);
+
+        sendLogInfo("largeTextLength is " + largeText.length);
+
+        //cycleLimit = (potentialOffsetSize > smallText.length) ? smallText.length : potentialOffsetSize;
+        cycleLimit = (potentialOffsetSize + tempReverseDeviation > largeText.length - tempReverseDeviation) ? (largeText.length - tempReverseDeviation) : potentialOffsetSize + tempReverseDeviation;
+
+        sendLogInfo("cycleLimit is " + cycleLimit);
+
+        /*
+        for (int i = 0; i < cycleLimit; i++) {
+            sendLogInfo("i is " + i);
+            sendLogInfo("largeText[i] is " + largeText[i] + " and largeText[i + offset] is " + largeText[i + potentialOffsetSize]);
+            if ((largeText[i] == largeText[i + potentialOffsetSize]) &&
+                    (largeText[i + 1] == largeText[i + 1 + potentialOffsetSize])) {
+                return (largeText.length - i);
             }
         }
+        */
+        if (absoluteMaxValue < maxCalculatedValue) {
+            for (int i = (tempReverseDeviation + 1); i < maxCalculatedValue; i++) {
+                sendLogInfo("i is " + i);
+                sendLogInfo("largeText[i] is " + largeText[i] + " and largeText[i + offset] is " + largeText[i + potentialOffsetSize]);
+                if (largeText[i] == largeText[i - potentialOffsetSize]) {
+                    sendLogInfo("returnVal is " + (largeText.length - (i - potentialOffsetSize)));
+                    return (largeText.length - (i - potentialOffsetSize));
+                }
+            }
+        }
+        sendLogInfo("returned value outside for loop");
         return lastDeviation;
     }
+
 
     private int findLongestLength(char[] oldText, char[] newText) {
 
@@ -160,6 +191,19 @@ public class SubtractStrings {
         } else {
             return 0;
         }
+    }
+
+    public AlterationType findAlterationType(char[] oldText, char[] newText){
+
+        int offsetValue = subtractLongestFromShortest(oldText, newText);
+        boolean replacementCheck = ((lastDeviation - offsetValue) - firstDeviation != 0);
+
+        if (oldText.length > newText.length) {
+            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.DELETION;
+        } else if (newText.length > oldText.length) {
+            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.ADDITION;
+        }
+        return AlterationType.REPLACEMENT;
     }
 
     private int findShortestLength(char[] oldText, char[] newText) {
