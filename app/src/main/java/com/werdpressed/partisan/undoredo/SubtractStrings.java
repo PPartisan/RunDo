@@ -112,10 +112,8 @@ public class SubtractStrings {
     private void offsetCheckResult(char[] oldText, char[] newText) {
 
         if (oldText.length > newText.length) {
-            sendLogInfo("oldText > newText");
             lastDeviation = findOffsetSize(oldText, newText);
         } else if (newText.length > oldText.length) {
-            sendLogInfo("newText > oldText");
             lastDeviation = findOffsetSize(newText, oldText);
         }
 
@@ -124,51 +122,20 @@ public class SubtractStrings {
     private int findOffsetSize(char[] largeText, char[] smallText) {
 
         int potentialOffsetSize = largeText.length - smallText.length;
-        int maxCalculatedValue, absoluteMaxValue, cycleLimit;
+        int maxCalculatedValue;
+        int adjustedReverseDeviation;
         boolean condition;
 
-        sendLogInfo("lastDeviation is " + lastDeviation);
-        //condition = ((lastDeviation + potentialOffsetSize) < largeText.length);
         condition = ((tempReverseDeviation + potentialOffsetSize) < largeText.length);
-
-        sendLogInfo("condition is " + condition);
-
         maxCalculatedValue = (condition) ? (tempReverseDeviation + potentialOffsetSize) : (largeText.length);
 
-        absoluteMaxValue = tempReverseDeviation + 1 + potentialOffsetSize;
-        //if (absoluteMaxValue < maxCalculatedValue) maxCalculatedValue = absoluteMaxValue;
+        adjustedReverseDeviation = (tempReverseDeviation < potentialOffsetSize) ? (potentialOffsetSize) : tempReverseDeviation;
 
-        sendLogInfo("maxCalculatedValue is " + maxCalculatedValue + " and potentialOffsetSet is " + potentialOffsetSize);
-        sendLogInfo("tempReverseDeviation is " + tempReverseDeviation);
-
-        sendLogInfo("largeTextLength is " + largeText.length);
-
-        //cycleLimit = (potentialOffsetSize > smallText.length) ? smallText.length : potentialOffsetSize;
-        cycleLimit = (potentialOffsetSize + tempReverseDeviation > largeText.length - tempReverseDeviation) ? (largeText.length - tempReverseDeviation) : potentialOffsetSize + tempReverseDeviation;
-
-        sendLogInfo("cycleLimit is " + cycleLimit);
-
-        /*
-        for (int i = 0; i < cycleLimit; i++) {
-            sendLogInfo("i is " + i);
-            sendLogInfo("largeText[i] is " + largeText[i] + " and largeText[i + offset] is " + largeText[i + potentialOffsetSize]);
-            if ((largeText[i] == largeText[i + potentialOffsetSize]) &&
-                    (largeText[i + 1] == largeText[i + 1 + potentialOffsetSize])) {
-                return (largeText.length - i);
+        for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
+            if (largeText[i] == largeText[i - potentialOffsetSize]) {
+                return (largeText.length - (i - potentialOffsetSize));
             }
         }
-        */
-        if (absoluteMaxValue < maxCalculatedValue) {
-            for (int i = (tempReverseDeviation + 1); i < maxCalculatedValue; i++) {
-                sendLogInfo("i is " + i);
-                sendLogInfo("largeText[i] is " + largeText[i] + " and largeText[i + offset] is " + largeText[i + potentialOffsetSize]);
-                if (largeText[i] == largeText[i - potentialOffsetSize]) {
-                    sendLogInfo("returnVal is " + (largeText.length - (i - potentialOffsetSize)));
-                    return (largeText.length - (i - potentialOffsetSize));
-                }
-            }
-        }
-        sendLogInfo("returned value outside for loop");
         return lastDeviation;
     }
 
