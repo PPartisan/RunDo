@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 newText = (EditText) ((AlertDialog) dialog).findViewById(R.id.new_text_entry);
 
                 output.setText(subtractStrings.findAlteredText(oldText.getText().toString(), newText.getText().toString()));
-                //statusOutput.setText(String.valueOf(subtractStrings.findAlterationType(oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray())));
+                statusOutput.setText(String.valueOf(subtractStrings.findAlterationType(oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray())));
                 dialog.dismiss();
             }
         });

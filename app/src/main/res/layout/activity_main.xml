@@ -12,12 +12,21 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ADDITION/REPLACEMENT/DELETION"
+        android:gravity="center"
+        android:singleLine="true"
+        android:id="@+id/status_textView"
+        android:layout_below="@+id/text_output" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/text_output_button"
         android:text="calculate"
-        android:layout_below="@+id/text_output"
+        android:layout_below="@+id/status_textView"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
