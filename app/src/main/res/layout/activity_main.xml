@@ -21,12 +21,20 @@
         android:id="@+id/status_textView"
         android:layout_below="@+id/text_output" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:singleLine="true"
+        android:id="@+id/replaced_text_textView"
+        android:layout_below="@+id/status_textView" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/text_output_button"
         android:text="calculate"
-        android:layout_below="@+id/status_textView"
+        android:layout_below="@+id/replaced_text_textView"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

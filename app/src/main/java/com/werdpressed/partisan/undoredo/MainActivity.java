@@ -15,7 +15,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     SubtractStrings subtractStrings;
-    TextView output, statusOutput;
+    TextView output, statusOutput, replacedText;
     Button outputButton;
 
     @Override
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         output = (TextView) findViewById(R.id.text_output);
         statusOutput = (TextView) findViewById(R.id.status_textView);
+        replacedText = (TextView) findViewById(R.id.replaced_text_textView);
 
         outputButton = (Button) findViewById(R.id.text_output_button);
 
@@ -44,12 +45,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 EditText oldText, newText;
+                SubtractStrings.AlterationType alterationType;
 
                 oldText = (EditText) ((AlertDialog) dialog).findViewById(R.id.old_text_entry);
                 newText = (EditText) ((AlertDialog) dialog).findViewById(R.id.new_text_entry);
 
                 output.setText(subtractStrings.findAlteredText(oldText.getText().toString(), newText.getText().toString()));
-                statusOutput.setText(String.valueOf(subtractStrings.findAlterationType(oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray())));
+
+                alterationType = subtractStrings.findAlterationType(oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray());
+                statusOutput.setText(String.valueOf(alterationType));
+                replacedText.setText(subtractStrings.findReplacedText(alterationType, oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray()));
+
                 dialog.dismiss();
             }
         });

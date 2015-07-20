@@ -12,7 +12,7 @@ public class SubtractStrings {
     int firstDeviation, lastDeviation, tempReverseDeviation;
 
     public enum AlterationType {
-        ADDITION, REPLACEMENT, DELETION
+        ADDITION, REPLACEMENT, DELETION, UNCHANGED
     }
 
     public SubtractStrings(Context context) {
@@ -111,6 +111,10 @@ public class SubtractStrings {
 
     private void offsetCheckResult(char[] oldText, char[] newText) {
 
+        if (oldText.length == newText.length) {
+            return;
+        }
+
         if (oldText.length > newText.length) {
             lastDeviation = findOffsetSize(oldText, newText);
         } else if (newText.length > oldText.length) {
@@ -133,8 +137,20 @@ public class SubtractStrings {
 
         for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
             if (largeText[i] == largeText[i - potentialOffsetSize]) {
-                return (largeText.length - (i - potentialOffsetSize));
+                int returnValue = largeText.length - (i - potentialOffsetSize);
+                if ((returnValue - firstDeviation) < potentialOffsetSize) {
+                    return firstDeviation + potentialOffsetSize;
+                } else {
+                    return returnValue;
+                }
+
             }
+        }
+
+        condition = (lastDeviation < firstDeviation) ||
+                ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
+        if (condition) {
+            return lastDeviation + potentialOffsetSize;
         }
         return lastDeviation;
     }
@@ -169,8 +185,22 @@ public class SubtractStrings {
             return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.DELETION;
         } else if (newText.length > oldText.length) {
             return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.ADDITION;
+        } else if ((newText.length == oldText.length) && !Arrays.equals(oldText, newText)) {
+            return AlterationType.REPLACEMENT;
+        } else {
+            return AlterationType.UNCHANGED;
         }
-        return AlterationType.REPLACEMENT;
+    }
+
+    public String findReplacedText(AlterationType altType, char[] oldText, char[] newText) {
+
+        int offsetValue = subtractLongestFromShortest(oldText, newText);
+        String returnText = (oldText.length > newText.length) ? new String(newText) : new String(oldText);
+
+        if (altType == AlterationType.REPLACEMENT) {
+            return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
+        }
+        return null;
     }
 
     private int findShortestLength(char[] oldText, char[] newText) {
