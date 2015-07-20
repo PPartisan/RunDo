@@ -219,7 +219,8 @@ public class SubtractStrings {
         if (altType == AlterationType.REPLACEMENT) {
             return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
         }
-        return null;
+        //return null;
+        return "";
     }
 
     public String findReplacedText(AlterationType altType, String oldTextString, String newTextString) {
@@ -233,7 +234,8 @@ public class SubtractStrings {
         if (altType == AlterationType.REPLACEMENT) {
             return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
         }
-        return null;
+        //return null;
+        return "";
     }
 
     private int findShortestLength(char[] oldText, char[] newText) {

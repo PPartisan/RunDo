@@ -81,7 +81,7 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
     private void main() {
 
         mEditText.addTextChangedListener(this);
-        mEditText.setOnClickListener(this);
+        //mEditText.setOnClickListener(this);
 
         mSubtractStrings = new SubtractStrings(mContext);
 
@@ -201,11 +201,6 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                 mEditText.getText().insert(tempIndex[0], temp);
                 break;
             case REPLACEMENT:
-                /*mSubtractStrings.findDeviations(temp.toCharArray(), mEditText.getText().toString().toCharArray());
-                tempIndex = new Integer[] {
-                        mSubtractStrings.getFirstDeviation(),
-                        mSubtractStrings.getLastDeviation()};
-                        */
                 sendLogInfo("temp is " + temp);
                 mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
                 break;
