@@ -11,7 +11,7 @@ public class SubtractStrings {
     char[] oldText, newText;
     int firstDeviation, lastDeviation, tempReverseDeviation;
 
-    public enum AlterationType {
+    enum AlterationType {
         ADDITION, REPLACEMENT, DELETION, UNCHANGED
     }
 
@@ -149,10 +149,8 @@ public class SubtractStrings {
 
         condition = (lastDeviation < firstDeviation) ||
                 ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
-        if (condition) {
-            return lastDeviation + potentialOffsetSize;
-        }
-        return lastDeviation;
+
+        return (condition) ? (lastDeviation + potentialOffsetSize) : lastDeviation;
     }
 
 
@@ -192,10 +190,45 @@ public class SubtractStrings {
         }
     }
 
+    public AlterationType findAlterationType(String oldString, String newString){
+
+        char[] oldText = oldString.toCharArray();
+        char[] newText = newString.toCharArray();
+
+        int offsetValue = subtractLongestFromShortest(oldText, newText);
+        boolean replacementCheck = ((lastDeviation - offsetValue) - firstDeviation != 0);
+
+        if (oldText.length > newText.length) {
+            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.DELETION;
+        } else if (newText.length > oldText.length) {
+            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.ADDITION;
+        } else if ((newText.length == oldText.length) && !Arrays.equals(oldText, newText)) {
+            return AlterationType.REPLACEMENT;
+        } else {
+            return AlterationType.UNCHANGED;
+        }
+    }
+
     public String findReplacedText(AlterationType altType, char[] oldText, char[] newText) {
 
         int offsetValue = subtractLongestFromShortest(oldText, newText);
         String returnText = (oldText.length > newText.length) ? new String(newText) : new String(oldText);
+
+        findDeviations(oldText, newText); //New
+
+        if (altType == AlterationType.REPLACEMENT) {
+            return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
+        }
+        return null;
+    }
+
+    public String findReplacedText(AlterationType altType, String oldTextString, String newTextString) {
+
+        char[] oldText = oldTextString.toCharArray();
+        char[] newText = newTextString.toCharArray();
+
+        int offsetValue = subtractLongestFromShortest(oldText, newText);
+        String returnText = (oldText.length > newText.length) ? newTextString : oldTextString;
 
         if (altType == AlterationType.REPLACEMENT) {
             return returnText.substring(firstDeviation, (lastDeviation - offsetValue));

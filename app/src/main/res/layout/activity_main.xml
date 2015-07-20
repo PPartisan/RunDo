@@ -37,4 +37,18 @@
         android:layout_below="@+id/replaced_text_textView"
         android:layout_centerHorizontal="true" />
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="4"
+        android:id="@+id/test_edit_text"
+        android:layout_below="@+id/text_output_button"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/undo_button"
+        android:text="undo"
+        android:layout_below="@+id/test_edit_text" />
+
 </RelativeLayout>

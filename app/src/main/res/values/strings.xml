@@ -3,4 +3,8 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- EditTextWatcher -->
+    <string name="etw_undo_array_empty">Undo Queue is Empty</string>
+    <string name="etw_constructor_error_class_cast"> must be an instance of, or inherit from, EditText</string>
 </resources>
