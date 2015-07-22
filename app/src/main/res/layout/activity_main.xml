@@ -44,11 +44,25 @@
         android:id="@+id/test_edit_text"
         android:layout_below="@+id/text_output_button"/>
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/undo_button"
-        android:text="undo"
-        android:layout_below="@+id/test_edit_text" />
+        android:layout_below="@+id/test_edit_text">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/undo_button"
+            android:text="undo" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/redo_button"
+            android:text="redo" />
+
+    </LinearLayout>
 
 </RelativeLayout>

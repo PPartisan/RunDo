@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     SubtractStrings subtractStrings;
     TextView output, statusOutput, replacedText;
-    Button outputButton, undoButton;
+    Button outputButton, undoButton, redoButton;
     EditText testEditText;
     EditTextWatcher mEditTextWatcher = null;
 
@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         outputButton = (Button) findViewById(R.id.text_output_button);
         undoButton = (Button) findViewById(R.id.undo_button);
+        redoButton = (Button) findViewById(R.id.redo_button);
 
         subtractStrings = new SubtractStrings(this);
         if (mEditTextWatcher == null) {
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         outputButton.setOnClickListener(this);
         undoButton.setOnClickListener(this);
+        redoButton.setOnClickListener(this);
     }
 
     @Override
@@ -84,6 +86,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.undo_button:
                 mEditTextWatcher.undo();
+                break;
+            case R.id.redo_button:
+                mEditTextWatcher.redo();
                 break;
         }
 

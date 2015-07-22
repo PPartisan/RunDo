@@ -192,20 +192,87 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
         tempAlt = mArrayDequeUndoAlt.poll();
         tempIndex = mArrayDequeUndoIndex.poll();
 
-        switch (tempAlt) {
-            case ADDITION:
-                mEditText.getText().delete(tempIndex[0], tempIndex[1]);
-                break;
-            case DELETION:
-                mEditText.getText().insert(tempIndex[0], temp);
-                break;
-            case REPLACEMENT:
-                sendLogInfo("temp is " + temp);
-                sendLogInfo("tempIndex[0] is " + tempIndex[0] + " and tempIndex[1] is " + tempIndex[1]);
-                mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
-                break;
+        try {
+            switch (tempAlt) {
+                case ADDITION:
+                    mEditText.getText().delete(tempIndex[0], tempIndex[1]);
+                    tempAlt = AlterationType.DELETION;
+                    break;
+                case DELETION:
+                    mEditText.getText().insert(tempIndex[0], temp);
+                    tempAlt = AlterationType.ADDITION;
+                    break;
+                case REPLACEMENT:
+                    sendLogInfo("temp is " + temp);
+                    sendLogInfo("tempIndex[0] is " + tempIndex[0] + " and tempIndex[1] is " + tempIndex[1]);
+                    mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
+                    mSubtractStrings.findDeviations(oldText.toCharArray(), newText.toCharArray());
+                    tempIndex = new Integer[]{mSubtractStrings.getFirstDeviation(), mSubtractStrings.getLastDeviation()};
+                    break;
+            }
+        } catch (StringIndexOutOfBoundsException s) {
+            Toast.makeText(mContext, s.toString(), Toast.LENGTH_SHORT).show();
+            s.printStackTrace();
+            clearAllArrayDequeue();
         }
+
+        mArrayDequeRedo.addFirst(temp);
+        mArrayDequeRedoAlt.addFirst(tempAlt);
+        mArrayDequeRedoIndex.addFirst(tempIndex);
         sendLogInfo("in undo(). Alteration type is " + tempAlt.toString());
+    }
+
+    public void redo(){
+        mHandler.removeCallbacks(mRunnable);
+        mTrackingState = TrackingState.STARTED;
+
+        String temp;
+        AlterationType tempAlt;
+        Integer[] tempIndex;
+
+        if (mArrayDequeRedo.peek() == null) {
+            Toast.makeText(mContext, mContext.getString(R.string.etw_redo_array_empty), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        temp = mArrayDequeRedo.poll();
+        tempAlt = mArrayDequeRedoAlt.poll();
+        tempIndex = mArrayDequeRedoIndex.poll();
+
+        try {
+            switch (tempAlt) {
+                case ADDITION:
+                    mEditText.getText().delete(tempIndex[0], tempIndex[1]);
+                    tempAlt = AlterationType.DELETION;
+                    break;
+                case DELETION:
+                    mEditText.getText().insert(tempIndex[0], temp);
+                    tempAlt = AlterationType.ADDITION;
+                    break;
+                case REPLACEMENT:
+                    sendLogInfo("temp is " + temp);
+                    sendLogInfo("tempIndex[0] is " + tempIndex[0] + " and tempIndex[1] is " + tempIndex[1]);
+                    mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
+                    break;
+            }
+        } catch (StringIndexOutOfBoundsException s) {
+            Toast.makeText(mContext, s.toString(), Toast.LENGTH_SHORT).show();
+            s.printStackTrace();
+            clearAllArrayDequeue();
+        }
+
+        mArrayDequeUndo.addFirst(temp);
+        mArrayDequeUndoAlt.addFirst(tempAlt);
+        mArrayDequeUndoIndex.addFirst(tempIndex);
+    }
+
+    private void clearAllArrayDequeue(){
+        mArrayDequeUndo.clear();
+        mArrayDequeUndoAlt.clear();
+        mArrayDequeUndoIndex.clear();
+        mArrayDequeRedo.clear();
+        mArrayDequeRedoAlt.clear();
+        mArrayDequeRedoIndex.clear();
     }
 
     private void sendLogInfo(String message) {

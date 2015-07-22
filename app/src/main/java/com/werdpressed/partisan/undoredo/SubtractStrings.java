@@ -123,17 +123,22 @@ public class SubtractStrings {
         int deviationOffset = 0;
 
         if (oldText.length > newText.length) {
-            deviationOffset = findOffsetSizeInContext(oldText, newText);
+            deviationOffset = findOffsetSizeInContext(true, oldText, newText);
+            //lastDeviationOldText = lastDeviationOldText - deviationOffset;
         } else if (newText.length > oldText.length) {
-            deviationOffset = findOffsetSizeInContext(newText, oldText);
+            deviationOffset = findOffsetSizeInContext(false, newText, oldText);
+            //lastDeviationNewText = lastDeviationNewText - deviationOffset;
         }
 
+        sendLogInfo("deviation offset is " + deviationOffset);
         lastDeviationNewText = lastDeviationNewText - deviationOffset;
         lastDeviationOldText = lastDeviationOldText - deviationOffset;
 
+        sendLogInfo("lastDevNew is now " + lastDeviationNewText + " and lastDevOld is now " + lastDeviationOldText);
+
     }
 
-    private int findOffsetSizeInContext(char[] largeText, char[] smallText) {
+    private int findOffsetSizeInContext(boolean oldTextLarger, char[] largeText, char[] smallText) {
 
         int potentialOffsetSize = largeText.length - smallText.length;
         int maxCalculatedValue;
@@ -148,19 +153,36 @@ public class SubtractStrings {
         for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
             if (largeText[i] == largeText[i - potentialOffsetSize]) {
                 int returnValue = (i - potentialOffsetSize);
-                if ((largeText.length - (returnValue - firstDeviation)) < potentialOffsetSize) {
-                    return potentialOffsetSize;
+                if (((largeText.length - (i - potentialOffsetSize)) - firstDeviation) < potentialOffsetSize) {
+                    sendLogInfo("returned  first condition in for loop. Returned value will be " + (largeText.length - (firstDeviation - potentialOffsetSize)));
+                    return largeText.length - (firstDeviation - potentialOffsetSize);
                 } else {
-                    return returnValue;
+                    sendLogInfo("returned  second condition in for loop. Returned value will be " + returnValue);
+                    //if (returnValue < firstDeviation) {
+                    //    return firstDeviation;
+                    //}
+                    //return returnValue;
+                    return firstDeviation;
                 }
             }
         }
 
-        condition = (lastDeviation < firstDeviation) ||
-                ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
+        //lastDeviation = (oldTextLarger) ? lastDeviationOldText : lastDeviationNewText;
+
+        if (oldTextLarger) {
+            condition = (lastDeviationOldText < firstDeviation) ||
+                    ((largeText.length == smallText.length) && (lastDeviationOldText <= firstDeviation));
+        } else {
+
+            condition = (lastDeviationNewText < firstDeviation) ||
+                    ((largeText.length == smallText.length) && (lastDeviationNewText <= firstDeviation));
+        }
 
         //return (condition) ? (lastDeviation + potentialOffsetSize) : lastDeviation;
-        return (condition) ? (potentialOffsetSize) : 0;
+
+        sendLogInfo("returned final condition. Returned value will be " + (condition ? (potentialOffsetSize) : 0));
+        return (condition) ? (potentialOffsetSize) : 0; //toDo New Idea! Always return 0!
+        //return 0;
     }
 
     public void findDeviations(char[] oldText, char[] newText) {
