@@ -11,8 +11,6 @@ import android.widget.Toast;
 
 import com.werdpressed.partisan.undoredo.SubtractStrings.AlterationType;
 
-import java.util.logging.SocketHandler;
-
 public class EditTextWatcher implements TextWatcher, View.OnClickListener {
 
     private static final int DEFAULT_COUNTDOWN = 2000;
@@ -103,19 +101,20 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                 newText = mEditText.getText().toString();
 
                 storedString = mSubtractStrings.findAlteredText(oldText, newText);
-                //mArrayDequeUndo.addFirst(mSubtractStrings.findAlteredText(oldText, newText));
-
                 index = new Integer[]{
                         mSubtractStrings.getFirstDeviation(),
                         mSubtractStrings.getLastDeviation()};
-                mArrayDequeUndoIndex.addFirst(index);
 
                 mAlt = mSubtractStrings.findAlterationType(oldText, newText);
-                mArrayDequeUndoAlt.addFirst(mAlt);
 
                 if (mAlt == AlterationType.REPLACEMENT) {
-                    mArrayDequeUndo.addFirst(mSubtractStrings.findReplacedText(mAlt, oldText, newText));
-                } else {
+                    storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
+                    index[1] = mSubtractStrings.lastDeviationNewText;
+                }
+
+                if (storedString != null) {
+                    mArrayDequeUndoIndex.addFirst(index);
+                    mArrayDequeUndoAlt.addFirst(mAlt);
                     mArrayDequeUndo.addFirst(storedString);
                 }
 
@@ -202,10 +201,11 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                 break;
             case REPLACEMENT:
                 sendLogInfo("temp is " + temp);
+                sendLogInfo("tempIndex[0] is " + tempIndex[0] + " and tempIndex[1] is " + tempIndex[1]);
                 mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
                 break;
         }
-
+        sendLogInfo("in undo(). Alteration type is " + tempAlt.toString());
     }
 
     private void sendLogInfo(String message) {

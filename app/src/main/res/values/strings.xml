@@ -7,4 +7,7 @@
     <!-- EditTextWatcher -->
     <string name="etw_undo_array_empty">Undo Queue is Empty</string>
     <string name="etw_constructor_error_class_cast"> must be an instance of, or inherit from, EditText</string>
+
+    <!-- SubtractStrings -->
+    <string name="ss_illegal_argument_exception"> must be AlterationType REPLACEMENT</string>
 </resources>

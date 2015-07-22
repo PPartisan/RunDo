@@ -10,6 +10,7 @@ public class SubtractStrings {
     Context context;
     char[] oldText, newText;
     int firstDeviation, lastDeviation, tempReverseDeviation;
+    int lastDeviationOldText, lastDeviationNewText;
 
     enum AlterationType {
         ADDITION, REPLACEMENT, DELETION, UNCHANGED
@@ -65,6 +66,103 @@ public class SubtractStrings {
         lastDeviation = longestLength - shortestLength;
     }
 
+    public void findLastDeviationInContext(char[] oldText, char[] newText) {
+
+        char[] oldTextReversed = reverseText(oldText);
+        char[] newTextReversed = reverseText(newText);
+
+        boolean condition = (newText.length > oldText.length);
+
+        if (Arrays.equals(oldText, newText)) {
+            return;
+        }
+
+        int shortestLength = findShortestLength(oldTextReversed, newTextReversed);
+        int longestLength = findLongestLength(oldTextReversed, newTextReversed);
+
+        for (int i = 0; i < shortestLength; i++) {
+            if (oldTextReversed[i] != newTextReversed[i]) {
+                tempReverseDeviation = i;
+                lastDeviationNewText = (condition) ? (longestLength - i) : (shortestLength - i);
+                lastDeviationOldText = (condition) ? (shortestLength - i) : (longestLength - i);
+                return;
+            }
+        }
+        tempReverseDeviation = shortestLength;
+        lastDeviation = longestLength - shortestLength;
+        lastDeviationNewText = (condition) ? (longestLength - shortestLength) : shortestLength;
+        lastDeviationOldText = (condition) ? shortestLength : (longestLength - shortestLength);
+    }
+
+    private void findDeviationsInContext(char[] oldText, char[] newText) {
+
+        findFirstDeviation(oldText, newText);
+        findLastDeviationInContext(oldText, newText);
+    }
+
+    public String findAlteredTextInContext(char[] oldText, char[] newText) {
+
+        if (Arrays.equals(oldText, newText)) {
+            return null;
+        }
+
+        String oldString = new String(oldText);
+        findDeviationsInContext(oldText, newText);
+        offsetCheckResultInContext(oldText, newText);
+
+        return oldString.substring(firstDeviation, lastDeviationOldText);
+
+    }
+
+    private void offsetCheckResultInContext(char[] oldText, char[] newText) {
+
+        if (oldText.length == newText.length) {
+            return;
+        }
+
+        int deviationOffset = 0;
+
+        if (oldText.length > newText.length) {
+            deviationOffset = findOffsetSizeInContext(oldText, newText);
+        } else if (newText.length > oldText.length) {
+            deviationOffset = findOffsetSizeInContext(newText, oldText);
+        }
+
+        lastDeviationNewText = lastDeviationNewText - deviationOffset;
+        lastDeviationOldText = lastDeviationOldText - deviationOffset;
+
+    }
+
+    private int findOffsetSizeInContext(char[] largeText, char[] smallText) {
+
+        int potentialOffsetSize = largeText.length - smallText.length;
+        int maxCalculatedValue;
+        int adjustedReverseDeviation;
+        boolean condition;
+
+        condition = ((tempReverseDeviation + potentialOffsetSize) < largeText.length);
+        maxCalculatedValue = (condition) ? (tempReverseDeviation + potentialOffsetSize) : (largeText.length);
+
+        adjustedReverseDeviation = (tempReverseDeviation < potentialOffsetSize) ? (potentialOffsetSize) : tempReverseDeviation;
+
+        for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
+            if (largeText[i] == largeText[i - potentialOffsetSize]) {
+                int returnValue = (i - potentialOffsetSize);
+                if ((largeText.length - (returnValue - firstDeviation)) < potentialOffsetSize) {
+                    return potentialOffsetSize;
+                } else {
+                    return returnValue;
+                }
+            }
+        }
+
+        condition = (lastDeviation < firstDeviation) ||
+                ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
+
+        //return (condition) ? (lastDeviation + potentialOffsetSize) : lastDeviation;
+        return (condition) ? (potentialOffsetSize) : 0;
+    }
+
     public void findDeviations(char[] oldText, char[] newText) {
 
         findFirstDeviation(oldText, newText);
@@ -96,7 +194,8 @@ public class SubtractStrings {
             return null;
         }
 
-        char[] oldCharArr = oldText.toCharArray(), newCharArr = newText.toCharArray();
+        char[] oldCharArr = oldText.toCharArray();
+        char[] newCharArr = newText.toCharArray();
 
         findDeviations(oldCharArr, newCharArr);
 
@@ -214,13 +313,10 @@ public class SubtractStrings {
         int offsetValue = subtractLongestFromShortest(oldText, newText);
         String returnText = (oldText.length > newText.length) ? new String(newText) : new String(oldText);
 
-        findDeviations(oldText, newText); //New
-
         if (altType == AlterationType.REPLACEMENT) {
             return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
         }
-        //return null;
-        return "";
+        return null;
     }
 
     public String findReplacedText(AlterationType altType, String oldTextString, String newTextString) {
@@ -234,8 +330,7 @@ public class SubtractStrings {
         if (altType == AlterationType.REPLACEMENT) {
             return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
         }
-        //return null;
-        return "";
+        return null;
     }
 
     private int findShortestLength(char[] oldText, char[] newText) {

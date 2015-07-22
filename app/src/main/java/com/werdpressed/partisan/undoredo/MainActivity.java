@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView output, statusOutput, replacedText;
     Button outputButton, undoButton;
     EditText testEditText;
-    EditTextWatcher mEditTextWatcher;
+    EditTextWatcher mEditTextWatcher = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +36,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         undoButton = (Button) findViewById(R.id.undo_button);
 
         subtractStrings = new SubtractStrings(this);
-        mEditTextWatcher = new EditTextWatcher(this, testEditText);
+        if (mEditTextWatcher == null) {
+            mEditTextWatcher = new EditTextWatcher(this, testEditText);
+        }
 
         outputButton.setOnClickListener(this);
         undoButton.setOnClickListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        subtractStrings = null;
+        mEditTextWatcher = null;
     }
 
     @Override
