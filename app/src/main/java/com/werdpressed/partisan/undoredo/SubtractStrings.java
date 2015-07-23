@@ -121,18 +121,23 @@ public class SubtractStrings {
         }
 
         int deviationOffset = 0;
+        int offsetValue = subtractLongestFromShortest(oldText, newText);
 
         if (oldText.length > newText.length) {
             deviationOffset = findOffsetSizeInContext(true, oldText, newText);
-            //lastDeviationOldText = lastDeviationOldText - deviationOffset;
+            //lastDeviationOldText = lastDeviationOldText + deviationOffset;
+            lastDeviationOldText = deviationOffset;
+            lastDeviationNewText = deviationOffset - offsetValue;
         } else if (newText.length > oldText.length) {
             deviationOffset = findOffsetSizeInContext(false, newText, oldText);
-            //lastDeviationNewText = lastDeviationNewText - deviationOffset;
+            //lastDeviationNewText = lastDeviationNewText + deviationOffset;
+            lastDeviationNewText = deviationOffset;
+            lastDeviationOldText = deviationOffset - offsetValue;
         }
 
         sendLogInfo("deviation offset is " + deviationOffset);
-        lastDeviationNewText = lastDeviationNewText - deviationOffset;
-        lastDeviationOldText = lastDeviationOldText - deviationOffset;
+        //lastDeviationNewText = lastDeviationNewText - deviationOffset;
+        //lastDeviationOldText = lastDeviationOldText - deviationOffset;
 
         sendLogInfo("lastDevNew is now " + lastDeviationNewText + " and lastDevOld is now " + lastDeviationOldText);
 
@@ -152,17 +157,21 @@ public class SubtractStrings {
 
         for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
             if (largeText[i] == largeText[i - potentialOffsetSize]) {
-                int returnValue = (i - potentialOffsetSize);
-                if (((largeText.length - (i - potentialOffsetSize)) - firstDeviation) < potentialOffsetSize) {
+                //int returnValue = (i - potentialOffsetSize);
+                int returnValue = largeText.length - (i - potentialOffsetSize);
+                //if (((largeText.length - (i - potentialOffsetSize)) - firstDeviation) < potentialOffsetSize) {
+                if ((returnValue - firstDeviation) < potentialOffsetSize) {
                     sendLogInfo("returned  first condition in for loop. Returned value will be " + (largeText.length - (firstDeviation - potentialOffsetSize)));
-                    return largeText.length - (firstDeviation - potentialOffsetSize);
+                    //return largeText.length - (firstDeviation - potentialOffsetSize);
+                    return firstDeviation + potentialOffsetSize;
                 } else {
                     sendLogInfo("returned  second condition in for loop. Returned value will be " + returnValue);
+                    sendLogInfo("i value is " + i + " and potentialOffsetSize is " + potentialOffsetSize);
                     //if (returnValue < firstDeviation) {
                     //    return firstDeviation;
                     //}
-                    //return returnValue;
-                    return firstDeviation;
+                    return returnValue;
+                    //return firstDeviation;
                 }
             }
         }
@@ -262,6 +271,7 @@ public class SubtractStrings {
                 if ((returnValue - firstDeviation) < potentialOffsetSize) {
                     return firstDeviation + potentialOffsetSize;
                 } else {
+                    sendLogInfo("returned  second condition in for loop. Returned value will be " + returnValue);
                     return returnValue;
                 }
 
