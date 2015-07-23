@@ -120,7 +120,7 @@ public class SubtractStrings {
             return;
         }
 
-        int deviationOffset = 0;
+        int deviationOffset;
         int offsetValue = subtractLongestFromShortest(oldText, newText);
 
         if (oldText.length > newText.length) {
@@ -241,7 +241,6 @@ public class SubtractStrings {
                 if ((returnValue - firstDeviation) < potentialOffsetSize) {
                     return firstDeviation + potentialOffsetSize;
                 } else {
-                    sendLogInfo("returned  second condition in for loop. Returned value will be " + returnValue);
                     return returnValue;
                 }
 
@@ -265,7 +264,7 @@ public class SubtractStrings {
         return (oldLength <= newLength) ? newLength : oldLength;
     }
 
-    private int subtractLongestFromShortest(char[] oldText, char[] newText) {
+    public int subtractLongestFromShortest(char[] oldText, char[] newText) {
         if (oldText.length > newText.length) {
             return oldText.length - newText.length;
         } else if (newText.length > oldText.length) {

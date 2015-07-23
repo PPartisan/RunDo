@@ -206,11 +206,14 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                     tempAlt = AlterationType.ADDITION;
                     break;
                 case REPLACEMENT:
-                    sendLogInfo("temp is " + temp);
-                    sendLogInfo("tempIndex[0] is " + tempIndex[0] + " and tempIndex[1] is " + tempIndex[1]);
+                    oldText = mEditText.getText().toString();
                     mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
-                    mSubtractStrings.findDeviations(oldText.toCharArray(), newText.toCharArray());
-                    tempIndex = new Integer[]{mSubtractStrings.getFirstDeviation(), mSubtractStrings.getLastDeviation()};
+                    newText = mEditText.getText().toString();
+                    temp = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
+                    tempIndex = new Integer[] {
+                            mSubtractStrings.getFirstDeviation(),
+                            mSubtractStrings.lastDeviationNewText
+                    };
                     break;
             }
         } catch (StringIndexOutOfBoundsException s) {
@@ -222,7 +225,6 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
         mArrayDequeRedo.addFirst(temp);
         mArrayDequeRedoAlt.addFirst(tempAlt);
         mArrayDequeRedoIndex.addFirst(tempIndex);
-        sendLogInfo("in undo(). Alteration type is " + tempAlt.toString());
     }
 
     public void redo(){
@@ -253,9 +255,14 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                     tempAlt = AlterationType.ADDITION;
                     break;
                 case REPLACEMENT:
-                    sendLogInfo("temp is " + temp);
-                    sendLogInfo("tempIndex[0] is " + tempIndex[0] + " and tempIndex[1] is " + tempIndex[1]);
+                    oldText = mEditText.getText().toString();
                     mEditText.getText().replace(tempIndex[0], tempIndex[1], temp);
+                    newText = mEditText.getText().toString();
+                    temp = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
+                    tempIndex = new Integer[] {
+                            mSubtractStrings.getFirstDeviation(),
+                            mSubtractStrings.lastDeviationNewText
+                    };
                     break;
             }
         } catch (StringIndexOutOfBoundsException s) {
