@@ -109,7 +109,10 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
 
                 if (mAlt == AlterationType.REPLACEMENT) {
                     storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
-                    index[1] = mSubtractStrings.lastDeviationNewText;
+                    index = new Integer[] {
+                            mSubtractStrings.getFirstDeviation(),
+                            mSubtractStrings.lastDeviationNewText
+                    };
                 }
 
                 if (storedString != null) {
