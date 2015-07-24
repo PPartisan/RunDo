@@ -102,7 +102,7 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         countdown = getCountdownSize();
         arraySize = getUndoRedoArraySize();
 
-        mSubtractStrings = new SubtractStrings(getActivity());
+        mSubtractStrings = new SubtractStrings();
 
         index = new Integer[]{0,0};
 

@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 public class SubtractStrings {
 
-    Context context;
     char[] oldText, newText;
 
     int firstDeviation, lastDeviation, tempReverseDeviation;
@@ -17,12 +16,10 @@ public class SubtractStrings {
         ADDITION, REPLACEMENT, DELETION, UNCHANGED
     }
 
-    public SubtractStrings(Context context) {
-        this.context = context;
+    public SubtractStrings() {
     }
 
-    public SubtractStrings(Context context, String oldText, String newText) {
-        this.context = context;
+    public SubtractStrings(String oldText, String newText) {
         this.oldText = oldText.toCharArray();
         this.newText = newText.toCharArray();
     }

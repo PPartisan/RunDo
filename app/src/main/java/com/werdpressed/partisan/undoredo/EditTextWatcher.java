@@ -81,7 +81,7 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
         mEditText.addTextChangedListener(this);
         //mEditText.setOnClickListener(this);
 
-        mSubtractStrings = new SubtractStrings(mContext);
+        mSubtractStrings = new SubtractStrings();
 
         mArrayDequeUndo = new CustomArrayDeque<>(arraySize);
         mArrayDequeRedo = new CustomArrayDeque<>(arraySize);
