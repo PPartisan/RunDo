@@ -39,8 +39,8 @@
 
     <EditText
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="4"
+        android:layout_height="match_parent"
+        android:inputType="textCapSentences"
         android:id="@+id/test_edit_text"
         android:layout_below="@+id/text_output_button"/>
 

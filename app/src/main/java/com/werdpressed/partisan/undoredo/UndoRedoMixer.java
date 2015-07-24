@@ -176,21 +176,9 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*outState.putSerializable(UNDO_ARRAY_ID, mArrayDequeUndo);
-        outState.putSerializable(UNDO_ARRAY_ALT_TYPE_ID, mArrayDequeUndoAlt);
-        outState.putSerializable(UNDO_ARRAY_INDEX_ID, mArrayDequeUndoIndex);
-        outState.putSerializable(REDO_ARRAY_ID, mArrayDequeRedo);
-        outState.putSerializable(REDO_ARRAY_INDEX_ID, mArrayDequeRedoIndex);
-        outState.putSerializable(REDO_ARRAY_ALT_TYPE_ID, mArrayDequeRedoAlt); */
         saveArraysToBundle(outState);
         saveStringsToBundle(outState);
         outState.putInt(EDIT_TEXT_RESOURCE_ID, mEditText.getId());
-        /*outState.putString(OLD_TEXT_ID, oldText);
-        outState.putString(NEW_TEXT_ID, newText);
-        outState.putInt(SS_FIRST_DEVIATION, mSubtractStrings.getFirstDeviation());
-        outState.putInt(SS_SECOND_DEVIATION, mSubtractStrings.getLastDeviation());
-        outState.putInt(SS_OLD_TEXT_LAST_DEVIATION, mSubtractStrings.lastDeviationOldText);
-        outState.putInt(SS_NEW_TEXT_LAST_DEVIATION, mSubtractStrings.lastDeviationNewText);*/
     }
 
     @Override
