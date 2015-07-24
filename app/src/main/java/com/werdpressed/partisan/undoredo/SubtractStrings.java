@@ -9,6 +9,7 @@ public class SubtractStrings {
 
     Context context;
     char[] oldText, newText;
+
     int firstDeviation, lastDeviation, tempReverseDeviation;
     int lastDeviationOldText, lastDeviationNewText;
 
@@ -387,5 +388,25 @@ public class SubtractStrings {
 
     public int[] getDeviations() {
         return new int[]{firstDeviation, lastDeviation};
+    }
+
+    public void setFirstDeviation(int firstDeviation) {
+        this.firstDeviation = firstDeviation;
+    }
+
+    public void setLastDeviation(int lastDeviation) {
+        this.lastDeviation = lastDeviation;
+    }
+
+    public void setTempReverseDeviation(int tempReverseDeviation) {
+        this.tempReverseDeviation = tempReverseDeviation;
+    }
+
+    public void setLastDeviationOldText(int lastDeviationOldText) {
+        this.lastDeviationOldText = lastDeviationOldText;
+    }
+
+    public void setLastDeviationNewText(int lastDeviationNewText) {
+        this.lastDeviationNewText = lastDeviationNewText;
     }
 }

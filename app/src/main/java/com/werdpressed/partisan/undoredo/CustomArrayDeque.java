@@ -1,5 +1,8 @@
 package com.werdpressed.partisan.undoredo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayDeque;
 
 /**

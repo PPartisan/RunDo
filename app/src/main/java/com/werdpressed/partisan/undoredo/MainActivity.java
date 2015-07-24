@@ -5,20 +5,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements
+        View.OnClickListener,
+        UndoRedoMixer.UndoRedoTextWatcher,
+        UndoRedoMixer.UndoRedoCallbacks{
 
     SubtractStrings subtractStrings;
     TextView output, statusOutput, replacedText;
     Button outputButton, undoButton, redoButton;
     EditText testEditText;
-    EditTextWatcher mEditTextWatcher = null;
+    UndoRedoMixer mUndoRedoMixer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +35,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         statusOutput = (TextView) findViewById(R.id.status_textView);
         replacedText = (TextView) findViewById(R.id.replaced_text_textView);
 
-        testEditText = (EditText) findViewById(R.id.test_edit_text);
-
         outputButton = (Button) findViewById(R.id.text_output_button);
         undoButton = (Button) findViewById(R.id.undo_button);
         redoButton = (Button) findViewById(R.id.redo_button);
 
         subtractStrings = new SubtractStrings(this);
-        if (mEditTextWatcher == null) {
-            mEditTextWatcher = new EditTextWatcher(this, testEditText);
+
+        mUndoRedoMixer = (UndoRedoMixer) getFragmentManager().findFragmentByTag(UndoRedoMixer.UNDO_REDO_MIXER_TAG);
+
+        if (mUndoRedoMixer == null) {
+            testEditText = (EditText) findViewById(R.id.test_edit_text);
+            mUndoRedoMixer = UndoRedoMixer.newInstance(testEditText.getId(), 0, 0);
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(mUndoRedoMixer, UndoRedoMixer.UNDO_REDO_MIXER_TAG)
+                    .commit();
         }
 
         outputButton.setOnClickListener(this);
@@ -50,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         subtractStrings = null;
-        mEditTextWatcher = null;
     }
 
     @Override
@@ -85,12 +95,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 builder.show();
                 break;
             case R.id.undo_button:
-                mEditTextWatcher.undo();
+                mUndoRedoMixer.undo();
                 break;
             case R.id.redo_button:
-                mEditTextWatcher.redo();
+                mUndoRedoMixer.redo();
                 break;
         }
 
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
+    }
+
+    @Override
+    public void undoCalled() {
+        Toast.makeText(this, "undo called", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void redoCalled() {
+        Toast.makeText(this, "redo called", Toast.LENGTH_SHORT).show();
     }
 }
