@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,9 +17,7 @@ import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener,
-        UndoRedoMixer.UndoRedoTextWatcher,
-        UndoRedoMixer.UndoRedoCallbacks{
+        View.OnClickListener{
 
     SubtractStrings subtractStrings;
     TextView output, statusOutput, replacedText;
@@ -102,30 +102,5 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
 
-    }
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-
-    }
-
-    @Override
-    public void undoCalled() {
-        Toast.makeText(this, "undo called", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void redoCalled() {
-        Toast.makeText(this, "redo called", Toast.LENGTH_SHORT).show();
     }
 }

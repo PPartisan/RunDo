@@ -39,9 +39,12 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
     private static final String UNDO_ARRAY_SIZE = "undo_array_size_id";
 
     private UndoRedoCallbacks mCallbacks;
-    private UndoRedoTextWatcher mTextWatcher;
 
     private boolean autoSaveSwitch = true, returnFromConfigChange = false;
+
+    private boolean sendUndoQueueEmptyMessage = true, sendRedoQueueEmptyMessage = true;
+    private String undoQueueEmptyString = null, redoQueueEmptyString = null;
+
     private TrackingState mTrackingState = TrackingState.ENDED;
 
     private int countdown, arraySize;
@@ -69,12 +72,6 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         void redoCalled();
     }
 
-    public interface UndoRedoTextWatcher {
-        void beforeTextChanged(CharSequence s, int start, int count, int after);
-        void onTextChanged(CharSequence s, int start, int before, int count);
-        void afterTextChanged(Editable s);
-    }
-
     public static UndoRedoMixer newInstance(int editTextResourceId, int countDown, int arraySize) {
         UndoRedoMixer frag = new UndoRedoMixer();
         Bundle args = new Bundle();
@@ -93,9 +90,6 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         super.onAttach(activity);
         if(activity instanceof UndoRedoCallbacks) {
             mCallbacks = (UndoRedoCallbacks) activity;
-        }
-        if(activity instanceof UndoRedoTextWatcher) {
-            mTextWatcher = (UndoRedoTextWatcher) activity;
         }
     }
 
@@ -120,7 +114,7 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                 String storedString;
                 newText = mEditText.getText().toString();
 
-                if (!nullCheck("in mRunnable")) {
+                if (!nullCheck()) {
                     storedString = mSubtractStrings.findAlteredText(oldText, newText);
                     index = new Integer[]{
                             mSubtractStrings.getFirstDeviation(),
@@ -141,7 +135,6 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                         mArrayDequeUndoAlt.addFirst(mAlt);
                         mArrayDequeUndo.addFirst(storedString);
                     }
-
                     mTrackingState = TrackingState.ENDED;
                 }
             }
@@ -196,10 +189,6 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        if (mTextWatcher != null) {
-            mTextWatcher.beforeTextChanged(s, start, count, after);
-        }
-
         if (autoSaveSwitch && (mTrackingState == TrackingState.ENDED) && !returnFromConfigChange){
             oldText = mEditText.getText().toString();
             mHandler.postDelayed(mRunnable, countdown);
@@ -210,10 +199,6 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        if (mTextWatcher != null) {
-            mTextWatcher.onTextChanged(s, start, before, count);
-        }
 
         if (autoSaveSwitch) {
             switch (mTrackingState) {
@@ -235,15 +220,12 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
 
     @Override
     public void afterTextChanged(Editable s) {
-
-        if (mTextWatcher != null) {
-            mTextWatcher.afterTextChanged(s);
-        }
-
+        //Empty
     }
+
     public void undo(){
 
-        if (nullCheck("in undo")) return;
+        if (nullCheck()) return;
 
         mHandler.removeCallbacks(mRunnable);
         mTrackingState = TrackingState.STARTED;
@@ -253,7 +235,12 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         Integer[] tempIndex;
 
         if (mArrayDequeUndo.peek() == null) {
-            Toast.makeText(getActivity(), getString(R.string.etw_undo_array_empty), Toast.LENGTH_SHORT).show();
+            if (sendUndoQueueEmptyMessage) {
+                if (undoQueueEmptyString == null) {
+                    undoQueueEmptyString = getString(R.string.etw_undo_array_empty);
+                }
+                Toast.makeText(getActivity(), undoQueueEmptyString, Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
@@ -284,6 +271,8 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                     break;
             }
 
+            mEditText.setSelection(tempIndex[0]);
+
             mArrayDequeRedo.addFirst(temp);
             mArrayDequeRedoAlt.addFirst(tempAlt);
             mArrayDequeRedoIndex.addFirst(tempIndex);
@@ -299,7 +288,7 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
 
     public void redo(){
 
-        if (nullCheck("in redo")) return;
+        if (nullCheck()) return;
 
         mHandler.removeCallbacks(mRunnable);
         mTrackingState = TrackingState.STARTED;
@@ -309,7 +298,12 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         Integer[] tempIndex;
 
         if (mArrayDequeRedo.peek() == null) {
-            Toast.makeText(getActivity(), getString(R.string.etw_redo_array_empty), Toast.LENGTH_SHORT).show();
+            if (sendRedoQueueEmptyMessage) {
+                if (redoQueueEmptyString == null) {
+                    redoQueueEmptyString = getString(R.string.etw_redo_array_empty);
+                }
+                Toast.makeText(getActivity(), redoQueueEmptyString, Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
@@ -339,6 +333,8 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                     };
                     break;
             }
+
+            mEditText.setSelection(tempIndex[0]);
 
             mArrayDequeUndo.addFirst(temp);
             mArrayDequeUndoAlt.addFirst(tempAlt);
@@ -435,6 +431,20 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
 
     public void setAutoSaveSwitch(boolean autoSaveSwitch) {
         this.autoSaveSwitch = autoSaveSwitch;
+    }
+
+    public void setUndoQueueEmptyMessage(boolean condition, String message){
+        sendUndoQueueEmptyMessage = condition;
+        undoQueueEmptyString = message;
+    }
+
+    public void setRedoQueueEmptyMessage(boolean condition, String message){
+        sendRedoQueueEmptyMessage = condition;
+        redoQueueEmptyString = message;
+    }
+
+    private boolean nullCheck(){
+        return (oldText == null || mSubtractStrings == null || mEditText == null);
     }
 
     private boolean nullCheck(String tag){
