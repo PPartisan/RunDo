@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements
         undoButton = (Button) findViewById(R.id.undo_button);
         redoButton = (Button) findViewById(R.id.redo_button);
 
-        subtractStrings = new SubtractStrings(this);
+        subtractStrings = new SubtractStrings();
 
         mUndoRedoMixer = (UndoRedoMixer) getFragmentManager().findFragmentByTag(UndoRedoMixer.UNDO_REDO_MIXER_TAG);
 

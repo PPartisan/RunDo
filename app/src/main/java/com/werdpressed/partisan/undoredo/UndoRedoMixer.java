@@ -110,29 +110,20 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         mRunnable = new Runnable() {
             @Override
             public void run() {
-                AlterationType mAlt;
                 String storedString;
                 newText = mEditText.getText().toString();
 
                 if (!nullCheck()) {
-                    storedString = mSubtractStrings.findAlteredText(oldText, newText);
+                    storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(),
+                            newText.toCharArray());
+
                     index = new Integer[]{
                             mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.getLastDeviation()};
-
-                    mAlt = mSubtractStrings.findAlterationType(oldText, newText);
-
-                    if (mAlt == AlterationType.REPLACEMENT) {
-                        storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
-                        index = new Integer[]{
-                                mSubtractStrings.getFirstDeviation(),
-                                mSubtractStrings.lastDeviationNewText
-                        };
-                    }
+                            mSubtractStrings.getLastDeviationNewText()};
 
                     if (storedString != null) {
                         mArrayDequeUndoIndex.addFirst(index);
-                        mArrayDequeUndoAlt.addFirst(mAlt);
+                        mArrayDequeUndoAlt.addFirst(mSubtractStrings.getAlterationType());
                         mArrayDequeUndo.addFirst(storedString);
                     }
                     mTrackingState = TrackingState.ENDED;
@@ -266,7 +257,7 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                     temp = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
                     tempIndex = new Integer[] {
                             mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.lastDeviationNewText
+                            mSubtractStrings.getLastDeviationNewText()
                     };
                     break;
             }
@@ -329,7 +320,7 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                     temp = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
                     tempIndex = new Integer[] {
                             mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.lastDeviationNewText
+                            mSubtractStrings.getLastDeviationNewText()
                     };
                     break;
             }
@@ -391,8 +382,8 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         outState.putString(NEW_TEXT_ID, newText);
         outState.putInt(SS_FIRST_DEVIATION, mSubtractStrings.getFirstDeviation());
         outState.putInt(SS_SECOND_DEVIATION, mSubtractStrings.getLastDeviation());
-        outState.putInt(SS_OLD_TEXT_LAST_DEVIATION, mSubtractStrings.lastDeviationOldText);
-        outState.putInt(SS_NEW_TEXT_LAST_DEVIATION, mSubtractStrings.lastDeviationNewText);
+        outState.putInt(SS_OLD_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationOldText());
+        outState.putInt(SS_NEW_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationNewText());
     }
 
     public void setEditText(Object object) {

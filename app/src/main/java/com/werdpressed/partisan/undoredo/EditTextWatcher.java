@@ -111,7 +111,7 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                     storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
                     index = new Integer[] {
                             mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.lastDeviationNewText
+                            mSubtractStrings.getLastDeviationNewText()
                     };
                 }
 
@@ -212,7 +212,7 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                     temp = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
                     tempIndex = new Integer[] {
                             mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.lastDeviationNewText
+                            mSubtractStrings.getLastDeviationNewText()
                     };
                     break;
             }
@@ -261,7 +261,7 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
                     temp = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(), newText.toCharArray());
                     tempIndex = new Integer[] {
                             mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.lastDeviationNewText
+                            mSubtractStrings.getLastDeviationNewText()
                     };
                     break;
             }

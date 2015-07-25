@@ -1,6 +1,5 @@
 package com.werdpressed.partisan.undoredo;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.util.Arrays;
@@ -9,8 +8,10 @@ public class SubtractStrings {
 
     char[] oldText, newText;
 
-    int firstDeviation, lastDeviation, tempReverseDeviation;
-    int lastDeviationOldText, lastDeviationNewText;
+    private int firstDeviation, lastDeviation, tempReverseDeviation;
+    private int lastDeviationOldText, lastDeviationNewText;
+
+    private AlterationType alterationType;
 
     enum AlterationType {
         ADDITION, REPLACEMENT, DELETION, UNCHANGED
@@ -64,6 +65,23 @@ public class SubtractStrings {
         lastDeviation = longestLength - shortestLength;
     }
 
+    public String findValues(String oldString, String newString) {
+        return findValues(oldString.toCharArray(), newString.toCharArray());
+    }
+
+    public String findValues(char[] oldText, char[] newText) {
+
+        findDeviations(oldText, newText);
+        offsetCheckResult(oldText, newText);
+        alterationType = findAlterationType(oldText, newText);
+        if (alterationType == AlterationType.REPLACEMENT) {
+            return findAlteredTextInContext(oldText, newText);
+        } else {
+            return findAlteredText(oldText, newText);
+        }
+
+    }
+
     public void findLastDeviationInContext(char[] oldText, char[] newText) {
 
         char[] oldTextReversed = reverseText(oldText);
@@ -83,6 +101,7 @@ public class SubtractStrings {
                 tempReverseDeviation = i;
                 lastDeviationNewText = (condition) ? (longestLength - i) : (shortestLength - i);
                 lastDeviationOldText = (condition) ? (shortestLength - i) : (longestLength - i);
+                lastDeviation = (condition) ? lastDeviationNewText : lastDeviationOldText;
                 return;
             }
         }
@@ -105,10 +124,21 @@ public class SubtractStrings {
         }
 
         String oldString = new String(oldText);
+        String newString = new String(newText);
         findDeviationsInContext(oldText, newText);
         offsetCheckResultInContext(oldText, newText);
+        alterationType = findAlterationType(oldText, newText);
 
-        return oldString.substring(firstDeviation, lastDeviationOldText);
+        if (alterationType == AlterationType.REPLACEMENT) {
+            lastDeviation = lastDeviationNewText;
+            return oldString.substring(firstDeviation, lastDeviationOldText);
+        } else {
+            if (newText.length >= oldText.length) {
+                return newString.substring(firstDeviation, lastDeviation);
+            } else {
+                return oldString.substring(firstDeviation, lastDeviation);
+            }
+        }
 
     }
 
@@ -359,32 +389,12 @@ public class SubtractStrings {
         Log.e(getClass().getSimpleName(), message);
     }
 
-    public void setOldText(char[] oldText) {
-        this.oldText = oldText;
-    }
-
-    public void setNewText(char[] newText) {
-        this.newText = newText;
-    }
-
-    public void setOldText(String oldText) {
-        this.oldText = oldText.toCharArray();
-    }
-
-    public void setNewText(String newText) {
-        this.newText = newText.toCharArray();
-    }
-
     public int getFirstDeviation() {
         return firstDeviation;
     }
 
     public int getLastDeviation() {
         return lastDeviation;
-    }
-
-    public int[] getDeviations() {
-        return new int[]{firstDeviation, lastDeviation};
     }
 
     public void setFirstDeviation(int firstDeviation) {
@@ -395,15 +405,23 @@ public class SubtractStrings {
         this.lastDeviation = lastDeviation;
     }
 
-    public void setTempReverseDeviation(int tempReverseDeviation) {
-        this.tempReverseDeviation = tempReverseDeviation;
-    }
-
     public void setLastDeviationOldText(int lastDeviationOldText) {
         this.lastDeviationOldText = lastDeviationOldText;
     }
 
     public void setLastDeviationNewText(int lastDeviationNewText) {
         this.lastDeviationNewText = lastDeviationNewText;
+    }
+
+    public int getLastDeviationNewText() {
+        return lastDeviationNewText;
+    }
+
+    public int getLastDeviationOldText() {
+        return lastDeviationOldText;
+    }
+
+    public AlterationType getAlterationType() {
+        return alterationType;
     }
 }
