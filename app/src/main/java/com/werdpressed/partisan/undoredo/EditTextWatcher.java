@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.werdpressed.partisan.undoredo.SubtractStrings.AlterationType;
+import com.werdpressed.partisan.rundo.SubtractStrings.AlterationType;
 */
 
 public class EditTextWatcher {

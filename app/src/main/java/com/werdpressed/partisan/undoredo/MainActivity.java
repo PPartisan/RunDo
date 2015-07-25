@@ -5,16 +5,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.werdpressed.partisan.rundo.SubtractStrings;
+import com.werdpressed.partisan.rundo.RunDoMixer;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener{
@@ -23,7 +21,7 @@ public class MainActivity extends AppCompatActivity implements
     TextView output, statusOutput, replacedText;
     Button outputButton, undoButton, redoButton;
     EditText testEditText;
-    UndoRedoMixer mUndoRedoMixer = null;
+    RunDoMixer mRunDoMixer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +39,14 @@ public class MainActivity extends AppCompatActivity implements
 
         subtractStrings = new SubtractStrings();
 
-        mUndoRedoMixer = (UndoRedoMixer) getFragmentManager().findFragmentByTag(UndoRedoMixer.UNDO_REDO_MIXER_TAG);
+        mRunDoMixer = (RunDoMixer) getFragmentManager().findFragmentByTag(RunDoMixer.RUNDO_MIXER_TAG);
 
-        if (mUndoRedoMixer == null) {
+        if (mRunDoMixer == null) {
             testEditText = (EditText) findViewById(R.id.test_edit_text);
-            mUndoRedoMixer = UndoRedoMixer.newInstance(testEditText.getId(), 0, 0);
+            mRunDoMixer = RunDoMixer.newInstance(testEditText.getId(), 0, 0);
             getFragmentManager()
                     .beginTransaction()
-                    .add(mUndoRedoMixer, UndoRedoMixer.UNDO_REDO_MIXER_TAG)
+                    .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
                     .commit();
         }
 
@@ -93,10 +91,10 @@ public class MainActivity extends AppCompatActivity implements
                 builder.show();
                 break;
             case R.id.undo_button:
-                mUndoRedoMixer.undo();
+                mRunDoMixer.undo();
                 break;
             case R.id.redo_button:
-                mUndoRedoMixer.redo();
+                mRunDoMixer.redo();
                 break;
         }
 

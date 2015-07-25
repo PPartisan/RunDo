@@ -1,4 +1,4 @@
-package com.werdpressed.partisan.undoredo;
+package com.werdpressed.partisan.rundo;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -10,14 +10,14 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.werdpressed.partisan.undoredo.SubtractStrings.AlterationType;
+import com.werdpressed.partisan.rundo.SubtractStrings.AlterationType;
 
-public class UndoRedoMixer extends Fragment implements TextWatcher {
+public class RunDoMixer extends Fragment implements TextWatcher {
 
     private static final int DEFAULT_COUNTDOWN = 2000;
     private static final int DEFAULT_ARRAY_DEQUE_SIZE = 10;
 
-    public static final String UNDO_REDO_MIXER_TAG = "undo_redo_mixer_tag";
+    public static final String RUNDO_MIXER_TAG = "undo_redo_mixer_tag";
 
     private static final String UNDO_ARRAY_ID = "undo_array_id";
     private static final String UNDO_ARRAY_ALT_TYPE_ID = "undo_array_alt_type_id";
@@ -72,8 +72,8 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
         void redoCalled();
     }
 
-    public static UndoRedoMixer newInstance(int editTextResourceId, int countDown, int arraySize) {
-        UndoRedoMixer frag = new UndoRedoMixer();
+    public static RunDoMixer newInstance(int editTextResourceId, int countDown, int arraySize) {
+        RunDoMixer frag = new RunDoMixer();
         Bundle args = new Bundle();
 
         args.putInt(EDIT_TEXT_RESOURCE_ID, editTextResourceId);
