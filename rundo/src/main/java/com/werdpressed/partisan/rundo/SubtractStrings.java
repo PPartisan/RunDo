@@ -5,7 +5,9 @@ import android.util.Log;
 import java.util.Arrays;
 
 /**
- * Compares two {@link String} objects and returns the first and last points they deviate from one another, <code>subString</code>s between the two, and information on whether or not text has been added, replaced or deleted.
+ * Compares two {@link String} objects and returns the first and last points they deviate from one
+ * another, <code>subString</code>s between the two, and information on whether or not text has
+ * been added, replaced or deleted.
  *
  * @author Tom Calver
  */

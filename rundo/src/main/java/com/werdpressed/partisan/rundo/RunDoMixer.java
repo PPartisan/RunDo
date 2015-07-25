@@ -12,11 +12,24 @@ import android.widget.Toast;
 
 import com.werdpressed.partisan.rundo.SubtractStrings.AlterationType;
 
+/**
+ * Adds Undo/Redo functions to either an instance of, or a class that inherits from, {@link EditText}
+ * <br>
+ * <br>
+ * Implementation will often simply be a case of instantiating a <code>RunDoMixer</code> object,
+ * passing an <code>EditText</code> argument and calling {@link #undo()} and {@link #redo()} methods.
+ *
+ * @author Tom Calver
+ */
+
 public class RunDoMixer extends Fragment implements TextWatcher {
 
     private static final int DEFAULT_COUNTDOWN = 2000;
     private static final int DEFAULT_ARRAY_DEQUE_SIZE = 10;
 
+    /**
+     * Optional tag for use when calling {@link #newInstance(int, int, int)} in {@link android.app.FragmentManager}
+     */
     public static final String RUNDO_MIXER_TAG = "undo_redo_mixer_tag";
 
     private static final String UNDO_ARRAY_ID = "undo_array_id";
@@ -63,15 +76,47 @@ public class RunDoMixer extends Fragment implements TextWatcher {
     private CustomArrayDeque<Integer[]> mArrayDequeUndoIndex, mArrayDequeRedoIndex;
     private CustomArrayDeque<SubtractStrings.AlterationType> mArrayDequeUndoAlt, mArrayDequeRedoAlt;
 
-    enum TrackingState {
+    /**
+     * Tracks whether the user is currently typing (<code>CURRENT</code>), whether user has finished
+     * typing and tracking is ready to restart (<code>ENDED</code>), or whether user has finished
+     * typing but tracking is not yet ready to begin (<code>STARTED</code>).
+     */
+    public enum TrackingState {
         STARTED, CURRENT, ENDED
     }
 
+    /**
+     * Provides callbacks whenever {@link #undo()} and {@link #redo()} methods are called.
+     */
     public interface UndoRedoCallbacks {
         void undoCalled();
         void redoCalled();
     }
 
+    /**
+     * Returns a new <code>RunDoMixer</code> instance.
+     * <br>
+     * <br>
+     * Fragment is used to retain information through configuration changes.
+     * @param editTextResourceId Optional resource id for an <code>EditText</code> instance.
+     *                           The simplest way to achieve this is to use the <code>getId()</code>
+     *                           method.
+     *                           <br><br>
+     *                           It is possible to pass <code>0</code>, and provide an
+     *                           <code>EditText</code> instance with {@link #setEditText(Object)}.
+     * @param countDown Optional countdown in milliseconds. This defines the period of time between
+     *                  when a user stops typing, and a {@link Runnable} is called to being saving
+     *                  data to the undo array.
+     *                  <br><br>
+     *                  A value of less than <code>1</code> will result in the default <code>2000</code>
+     *                  millisecond countdown.
+     * @param arraySize Optional value that specifies the size of the Undo and Redo
+     *                  array queues.
+     *                  <br><br>
+     *                  An argument with a value of less than
+     *                  <code>1</code> will use the default value of <code>10</code>.
+     * @return New <code>RunDoMixer</code> instance, with arguments.
+     */
     public static RunDoMixer newInstance(int editTextResourceId, int countDown, int arraySize) {
         RunDoMixer frag = new RunDoMixer();
         Bundle args = new Bundle();
@@ -222,6 +267,20 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         //Empty
     }
 
+    /**
+     * Retrieves the following:
+     * <ul>
+     *     <li>{@link String} containing the last saved section of text</li>
+     *     <li>{@link Integer} array containing first and last points of deviation</li>
+     *     <li>{@link AlterationType} <code>enum</code> that specifies whether text was last
+     *     replaced, added or deleted.</li>
+     * </ul>
+     * An optional message will appear to prompt the user that the Undo queue is empty if the queue
+     * is either at max capacity, or the next entry in the queue is <code>null</code>
+     * <br><br>
+     * If an error occurs, by default a {@link Toast} will appear specifying details of the error,
+     *  and all queues will be cleared.
+     */
     public void undo(){
 
         if (nullCheck()) return;
@@ -285,6 +344,20 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         }
     }
 
+    /**
+     * Works in parallel with {@link #undo()}. Retrieves the following:
+     * <ul>
+     *     <li>{@link String} containing the last saved section of text</li>
+     *     <li>{@link Integer} array containing first and last points of deviation</li>
+     *     <li>{@link AlterationType} <code>enum</code> that specifies whether text was last
+     *     replaced, added or deleted.</li>
+     * </ul>
+     * An optional message will appear to prompt the user that the Undo queue is empty if the queue
+     * is either at max capacity, or the next entry in the queue is <code>null</code>
+     * <br><br>
+     * If an error occurs, by default a {@link Toast} will appear specifying details of the error,
+     *  and all queues will be cleared.
+     */
     public void redo(){
 
         if (nullCheck()) return;
@@ -394,6 +467,14 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         outState.putInt(SS_NEW_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationNewText());
     }
 
+    /**
+     * Provide an {@link Object} that either extends, or is an instance of, {@link EditText}.
+     * <br><br>
+     * This is essential for all method calls to avoid a {@link NullPointerException}
+     * @param object Argument must be of a <code>Class</code> that either inherits from, or is a
+     *               direct instance of, {@link EditText}.
+     * @throws ClassCastException
+     */
     public void setEditText(Object object) {
         if (!(object instanceof EditText)) {
             throw new ClassCastException(object.toString() +
@@ -402,14 +483,27 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         mEditText = (EditText) object;
     }
 
+    /**
+     * Retrieve the <code>EditText</code> associated with this <code>Class</code> instance.
+     * @return {@link Object} that either inherits from, or is a direct instance of, <code>EditText</code>
+     */
     public Object getEditText(){
         return mEditText;
     }
 
+    /**
+     * Retrieve the resource id for the <code>EditText</code> associated with this <code>Class</code> instance.
+     * @return Resource id for <code>EditText</code>, as <code>int</code> value.
+     */
     public int getEditTextResourceId(){
         return getArguments().getInt(EDIT_TEXT_RESOURCE_ID, 0);
     }
 
+    /**
+     * Retrieve time in milliseconds between user finishing typing and a {@link Runnable} launching
+     * the Undo save process
+     * @return Time in milliseconds, as <code>int</code> value;
+     */
     public int getCountdownSize(){
         if (getArguments().getInt(COUNTDOWN_TIME, 0) < 1) {
             return DEFAULT_COUNTDOWN;
@@ -417,6 +511,11 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         return getArguments().getInt(COUNTDOWN_TIME);
     }
 
+    /**
+     * Size of the Undo and Redo arrays. This value determines the maximum amount of Undo queue storage
+     * before items are deleted.
+     * @return Size of Undo/Redo queue, as <code>int</code> value;
+     */
     public int getUndoRedoArraySize(){
         if (getArguments().getInt(UNDO_ARRAY_SIZE, 0) < 1) {
             return DEFAULT_ARRAY_DEQUE_SIZE;
@@ -424,19 +523,48 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         return getArguments().getInt(UNDO_ARRAY_SIZE);
     }
 
+    /**
+     * Specifies whether AutoSave feature is currently active. When this returns <code>false</code>, no further
+     * data will be saved to the Undo queue. This value is <code>true</code> by default.
+     * @return <code>true</code> if AutoSave is currently active, otherwise <code>false</code>
+     */
     public boolean isAutoSave() {
         return autoSaveSwitch;
     }
 
+    /**
+     * Set to <code>true</code> to activate AutoSave. When AutoSave is inactive, no data will be saved to the
+     * Undo queue.
+     * @param autoSaveSwitch <code>true</code> to enabled the AutoSave feature, otherwise <code>false</code>
+     */
     public void setAutoSaveSwitch(boolean autoSaveSwitch) {
         this.autoSaveSwitch = autoSaveSwitch;
     }
 
+    /**
+     * Specify whether a {@link Toast} will appear when {@link #undo()} is called, but the Undo queue
+     * is either empty or the next item is null, and whether a custom message will appear instead of
+     * the default.
+     * @param condition <code>true</code> will send a <code>Toast</code> message if <code>undo()</code>
+     *                  is called when Undo queue is empty, or next value is null.
+     * @param message Optional message to send in the <code>Toast</code> notification. Passing <code>null</code>
+     *                here will use the default value.
+     * @see #setRedoQueueEmptyMessage(boolean, String)
+     */
     public void setUndoQueueEmptyMessage(boolean condition, String message){
         sendUndoQueueEmptyMessage = condition;
         undoQueueEmptyString = message;
     }
-
+    /**
+     * Specify whether a {@link Toast} will appear when {@link #redo()} is called, but the Redo queue
+     * is either empty or the next item is null, and whether a custom message will appear instead of
+     * the default.
+     * @param condition <code>true</code> will send a <code>Toast</code> message if <code>redo()</code>
+     *                  is called when Redo queue is empty, or next value is null.
+     * @param message Optional message to send in the <code>Toast</code> notification. Passing <code>null</code>
+     *                here will use the default value.
+     * @see #setUndoQueueEmptyMessage(boolean, String)
+     */
     public void setRedoQueueEmptyMessage(boolean condition, String message){
         sendRedoQueueEmptyMessage = condition;
         redoQueueEmptyString = message;
