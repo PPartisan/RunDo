@@ -117,9 +117,17 @@ public class UndoRedoMixer extends Fragment implements TextWatcher {
                     storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(),
                             newText.toCharArray());
 
-                    index = new Integer[]{
-                            mSubtractStrings.getFirstDeviation(),
-                            mSubtractStrings.getLastDeviationNewText()};
+                    if (mSubtractStrings.getAlterationType() == AlterationType.REPLACEMENT) {
+                        index = new Integer[]{
+                                mSubtractStrings.getFirstDeviation(),
+                                mSubtractStrings.getLastDeviationNewText()
+                        };
+                    } else {
+                        index = new Integer[] {
+                                mSubtractStrings.getFirstDeviation(),
+                                mSubtractStrings.getLastDeviation()
+                        };
+                    }
 
                     if (storedString != null) {
                         mArrayDequeUndoIndex.addFirst(index);

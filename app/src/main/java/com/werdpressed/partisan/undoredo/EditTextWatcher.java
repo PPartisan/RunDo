@@ -1,6 +1,6 @@
 package com.werdpressed.partisan.undoredo;
 
-import android.content.Context;
+/*import android.content.Context;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,8 +10,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.werdpressed.partisan.undoredo.SubtractStrings.AlterationType;
+*/
 
-public class EditTextWatcher implements TextWatcher, View.OnClickListener {
+public class EditTextWatcher {
+
+/*implements TextWatcher, View.OnClickListener {
 
     private static final int DEFAULT_COUNTDOWN = 2000;
     private static final int DEFAULT_ARRAY_DEQUE_SIZE = 10;
@@ -288,5 +291,6 @@ public class EditTextWatcher implements TextWatcher, View.OnClickListener {
     private void sendLogInfo(String message) {
         Log.e(getClass().getSimpleName(), message);
     }
+    */
 
 }

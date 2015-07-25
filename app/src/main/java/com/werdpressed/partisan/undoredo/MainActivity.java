@@ -77,16 +77,14 @@ public class MainActivity extends AppCompatActivity implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         EditText oldText, newText;
-                        SubtractStrings.AlterationType alterationType;
 
                         oldText = (EditText) ((AlertDialog) dialog).findViewById(R.id.old_text_entry);
                         newText = (EditText) ((AlertDialog) dialog).findViewById(R.id.new_text_entry);
 
                         output.setText(subtractStrings.findAlteredText(oldText.getText().toString(), newText.getText().toString()));
 
-                        alterationType = subtractStrings.findAlterationType(oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray());
-                        statusOutput.setText(String.valueOf(alterationType));
-                        replacedText.setText(subtractStrings.findReplacedText(alterationType, oldText.getText().toString().toCharArray(), newText.getText().toString().toCharArray()));
+                        statusOutput.setText(String.valueOf(subtractStrings.getAlterationType()));
+                        replacedText.setText(subtractStrings.findReplacedText(subtractStrings.getAlterationType(), oldText.getText().toString(), newText.getText().toString()));
 
                         dialog.dismiss();
                     }

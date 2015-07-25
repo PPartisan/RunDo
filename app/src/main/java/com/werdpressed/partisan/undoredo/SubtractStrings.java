@@ -25,7 +25,7 @@ public class SubtractStrings {
         this.newText = newText.toCharArray();
     }
 
-    public void findFirstDeviation(char[] oldText, char[] newText) {
+    private void findFirstDeviation(char[] oldText, char[] newText) {
 
         if (Arrays.equals(oldText, newText)) {
             return;
@@ -42,7 +42,7 @@ public class SubtractStrings {
         firstDeviation = shortestLength;
     }
 
-    public void findLastDeviation(char[] oldText, char[] newText) {
+    private void findLastDeviation(char[] oldText, char[] newText) {
 
         char[] oldTextReversed = reverseText(oldText);
         char[] newTextReversed = reverseText(newText);
@@ -65,24 +65,7 @@ public class SubtractStrings {
         lastDeviation = longestLength - shortestLength;
     }
 
-    public String findValues(String oldString, String newString) {
-        return findValues(oldString.toCharArray(), newString.toCharArray());
-    }
-
-    public String findValues(char[] oldText, char[] newText) {
-
-        findDeviations(oldText, newText);
-        offsetCheckResult(oldText, newText);
-        alterationType = findAlterationType(oldText, newText);
-        if (alterationType == AlterationType.REPLACEMENT) {
-            return findAlteredTextInContext(oldText, newText);
-        } else {
-            return findAlteredText(oldText, newText);
-        }
-
-    }
-
-    public void findLastDeviationInContext(char[] oldText, char[] newText) {
+    private void findLastDeviationInContext(char[] oldText, char[] newText) {
 
         char[] oldTextReversed = reverseText(oldText);
         char[] newTextReversed = reverseText(newText);
@@ -199,22 +182,7 @@ public class SubtractStrings {
     }
 
     public String findAlteredText(char[] oldText, char[] newText){
-
-        if (Arrays.equals(oldText, newText)) {
-            return null;
-        }
-
-        String oldString = new String(oldText), newString = new String(newText);
-
-        findDeviations(oldText, newText);
-
-        offsetCheckResult(oldText, newText);
-
-        if (newText.length >= oldText.length) {
-            return newString.substring(firstDeviation, lastDeviation);
-        } else {
-            return oldString.substring(firstDeviation, lastDeviation);
-        }
+        return findAlteredText(new String(oldText), new String(newText));
     }
 
     public String findAlteredText(String oldText, String newText){
@@ -229,6 +197,8 @@ public class SubtractStrings {
         findDeviations(oldCharArr, newCharArr);
 
         offsetCheckResult(oldCharArr, newCharArr);
+
+        alterationType = findAlterationType(oldText, newText);
 
         if (newCharArr.length >= oldCharArr.length) {
             return newText.substring(firstDeviation, lastDeviation);
@@ -292,7 +262,7 @@ public class SubtractStrings {
         return (oldLength <= newLength) ? newLength : oldLength;
     }
 
-    public int subtractLongestFromShortest(char[] oldText, char[] newText) {
+    private int subtractLongestFromShortest(char[] oldText, char[] newText) {
         if (oldText.length > newText.length) {
             return oldText.length - newText.length;
         } else if (newText.length > oldText.length) {
@@ -302,7 +272,7 @@ public class SubtractStrings {
         }
     }
 
-    public AlterationType findAlterationType(char[] oldText, char[] newText){
+    private AlterationType findAlterationType(char[] oldText, char[] newText){
 
         int offsetValue = subtractLongestFromShortest(oldText, newText);
         boolean replacementCheck = ((lastDeviation - offsetValue) - firstDeviation != 0);
@@ -318,23 +288,8 @@ public class SubtractStrings {
         }
     }
 
-    public AlterationType findAlterationType(String oldString, String newString){
-
-        char[] oldText = oldString.toCharArray();
-        char[] newText = newString.toCharArray();
-
-        int offsetValue = subtractLongestFromShortest(oldText, newText);
-        boolean replacementCheck = ((lastDeviation - offsetValue) - firstDeviation != 0);
-
-        if (oldText.length > newText.length) {
-            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.DELETION;
-        } else if (newText.length > oldText.length) {
-            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.ADDITION;
-        } else if ((newText.length == oldText.length) && !Arrays.equals(oldText, newText)) {
-            return AlterationType.REPLACEMENT;
-        } else {
-            return AlterationType.UNCHANGED;
-        }
+    private AlterationType findAlterationType(String oldString, String newString){
+        return findAlterationType(oldString.toCharArray(), newString.toCharArray());
     }
 
     public String findReplacedText(AlterationType altType, char[] oldText, char[] newText) {
@@ -349,17 +304,7 @@ public class SubtractStrings {
     }
 
     public String findReplacedText(AlterationType altType, String oldTextString, String newTextString) {
-
-        char[] oldText = oldTextString.toCharArray();
-        char[] newText = newTextString.toCharArray();
-
-        int offsetValue = subtractLongestFromShortest(oldText, newText);
-        String returnText = (oldText.length > newText.length) ? newTextString : oldTextString;
-
-        if (altType == AlterationType.REPLACEMENT) {
-            return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
-        }
-        return null;
+        return findReplacedText(altType, oldTextString.toCharArray(), newTextString.toCharArray());
     }
 
     private int findShortestLength(char[] oldText, char[] newText) {
