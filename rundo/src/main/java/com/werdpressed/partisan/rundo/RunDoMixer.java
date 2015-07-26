@@ -541,7 +541,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
      * @see #setKeyboardShortcuts(boolean)
      */
     public boolean areKeyboardShortcutsActive(){
-        return (mEditText.getKeyListener() != null);
+        return hardwareShortcutsActive;
     }
 
     /**
