@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements
                     .beginTransaction()
                     .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
                     .commit();
+            mRunDoMixer.setKeyboardShortcuts(true);
         }
 
         outputButton.setOnClickListener(this);

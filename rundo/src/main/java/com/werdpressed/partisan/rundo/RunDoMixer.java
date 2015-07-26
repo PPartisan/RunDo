@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -22,7 +24,7 @@ import com.werdpressed.partisan.rundo.SubtractStrings.AlterationType;
  * @author Tom Calver
  */
 
-public class RunDoMixer extends Fragment implements TextWatcher {
+public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListener {
 
     private static final int DEFAULT_COUNTDOWN = 2000;
     private static final int DEFAULT_ARRAY_DEQUE_SIZE = 10;
@@ -31,6 +33,8 @@ public class RunDoMixer extends Fragment implements TextWatcher {
      * Optional tag for use when calling {@link #newInstance(int, int, int)} in {@link android.app.FragmentManager}
      */
     public static final String RUNDO_MIXER_TAG = "undo_redo_mixer_tag";
+
+    private static final String KEYBOARD_SHORTCUTS_ID = "keyboard_shortcuts_id";
 
     private static final String UNDO_ARRAY_ID = "undo_array_id";
     private static final String UNDO_ARRAY_ALT_TYPE_ID = "undo_array_alt_type_id";
@@ -54,6 +58,7 @@ public class RunDoMixer extends Fragment implements TextWatcher {
     private UndoRedoCallbacks mCallbacks;
 
     private boolean autoSaveSwitch = true, returnFromConfigChange = false;
+    private boolean hardwareShortcutsActive = true;
 
     private boolean sendUndoQueueEmptyMessage = true, sendRedoQueueEmptyMessage = true;
     private String undoQueueEmptyString = null, redoQueueEmptyString = null;
@@ -200,6 +205,7 @@ public class RunDoMixer extends Fragment implements TextWatcher {
             returnFromConfigChange = true;
             oldText = savedInstanceState.getString(OLD_TEXT_ID);
             newText = savedInstanceState.getString(NEW_TEXT_ID);
+            hardwareShortcutsActive = savedInstanceState.getBoolean(KEYBOARD_SHORTCUTS_ID, true);
             mSubtractStrings.setFirstDeviation(savedInstanceState.getInt(SS_FIRST_DEVIATION));
             mSubtractStrings.setLastDeviation(savedInstanceState.getInt(SS_SECOND_DEVIATION));
             mSubtractStrings.setLastDeviationNewText(savedInstanceState.getInt(SS_NEW_TEXT_LAST_DEVIATION));
@@ -208,6 +214,9 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         }
 
         mEditText.addTextChangedListener(this);
+        if (hardwareShortcutsActive) {
+            mEditText.setOnKeyListener(this);
+        }
     }
 
     @Override
@@ -216,6 +225,7 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         saveArraysToBundle(outState);
         saveStringsToBundle(outState);
         outState.putInt(EDIT_TEXT_RESOURCE_ID, mEditText.getId());
+        outState.putBoolean(KEYBOARD_SHORTCUTS_ID, hardwareShortcutsActive);
     }
 
     @Override
@@ -265,6 +275,23 @@ public class RunDoMixer extends Fragment implements TextWatcher {
     @Override
     public void afterTextChanged(Editable s) {
         //Empty
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            if (event.isCtrlPressed()) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_Z:
+                        undo();
+                        return true;
+                    case KeyEvent.KEYCODE_Y:
+                        redo();
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -489,6 +516,32 @@ public class RunDoMixer extends Fragment implements TextWatcher {
      */
     public Object getEditText(){
         return mEditText;
+    }
+
+    /**
+     * Enables common shortcuts for hardware keyboards. <code>Ctrl + Z</code> will call {@link #undo()},
+     * whilst <code>Ctrl + Y</code> will call {@link #redo()}.
+     * @param shortcutsActive Pass <code>true</code> to enable keyboard shortcuts.
+     * @see #areKeyboardShortcutsActive()
+     */
+    public void setKeyboardShortcuts(boolean shortcutsActive) {
+
+        hardwareShortcutsActive = shortcutsActive;
+        if (mEditText != null){
+            if (shortcutsActive) {
+                mEditText.setOnKeyListener(this);
+            } else {
+                mEditText.setOnKeyListener(null);
+            }
+        }
+    }
+
+    /**
+     * @return Returns <code>true</code> if common hardware keyboard shortcuts are currently active.
+     * @see #setKeyboardShortcuts(boolean)
+     */
+    public boolean areKeyboardShortcutsActive(){
+        return (mEditText.getKeyListener() != null);
     }
 
     /**

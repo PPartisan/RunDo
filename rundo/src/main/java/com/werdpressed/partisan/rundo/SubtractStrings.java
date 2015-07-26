@@ -275,11 +275,6 @@ public class SubtractStrings {
     }
 
     /**
-     * Convenience method. Converts parameters to <code>String</code>s.
-     * @param oldText Old Text to compare.
-     * @param newText New Text to compare.
-     * @return <code>subString</code> of the larger of the two arguments, between {@link #firstDeviation} and {@link #lastDeviation}
-     *
      * @see #findAlteredText(char[], char[])
      */
     public String findAlteredText(char[] oldText, char[] newText){
@@ -436,15 +431,7 @@ public class SubtractStrings {
     }
 
     /**
-     * Convenience method.Converts parameters to <code>char[]</code>
-     * @param altType Must be of {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} <code>REPLACEMENT</code>
-     * @param oldTextString Old Text to compare.
-     * @param newTextString New Text to compare.
-     * @return <code>subString</code> of the smaller of <code>oldText</code> or <code>newText</code>
-     * between {@link #firstDeviation} and {@link #lastDeviation} if
-     * {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} is <code>REPLACEMENT</code>.
-     * If {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} is not
-     * <code>REPLACEMENT</code>, this method will return <code>null</code>
+     * @see #findReplacedText(AlterationType, char[], char[])
      */
     public String findReplacedText(AlterationType altType, String oldTextString, String newTextString) {
         return findReplacedText(altType, oldTextString.toCharArray(), newTextString.toCharArray());
