@@ -12,7 +12,7 @@ This library aims to counteract some of the performance problems that can occur 
 
 #### Instantiation
 
-As the class extends `android.app.Fragment`, it is instantiated with `FragmentManager`
+As the class extends `android.app.Fragment`, it requires `FragmentManager`
 
     RunDoMixer mRunDoMixer;
     //...
