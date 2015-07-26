@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">RunDo</string>
+    <string name="rundo_app_name">RunDo</string>
 
-    <!-- EditTextWatcher -->
-    <string name="etw_undo_array_empty">Undo Queue is Empty</string>
-    <string name="etw_redo_array_empty">Redo Queue is Empty</string>
-    <string name="etw_constructor_error_class_cast"> must be an instance of, or inherit from, EditText</string>
+    <!-- RunDo -->
+    <string name="rundo_rd_undo_array_empty">Undo Queue is Empty</string>
+    <string name="rundo_rd_redo_array_empty">Redo Queue is Empty</string>
+    <string name="rundo_rd_constructor_error_class_cast"> must be an instance of, or inherit from, EditText</string>
 
     <!-- SubtractStrings -->
-    <string name="ss_illegal_argument_exception"> must be AlterationType REPLACEMENT</string>
+    <string name="rundo_ss_illegal_argument_exception"> must be AlterationType REPLACEMENT</string>
 </resources>

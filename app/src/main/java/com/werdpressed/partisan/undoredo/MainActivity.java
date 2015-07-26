@@ -67,28 +67,7 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (id) {
             case R.id.text_output_button:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog_AppCompat_Light);
-                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.input_text_dialog, null);
-                builder.setView(view);
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        EditText oldText, newText;
-
-                        oldText = (EditText) ((AlertDialog) dialog).findViewById(R.id.old_text_entry);
-                        newText = (EditText) ((AlertDialog) dialog).findViewById(R.id.new_text_entry);
-
-                        output.setText(subtractStrings.findAlteredText(oldText.getText().toString(), newText.getText().toString()));
-
-                        statusOutput.setText(String.valueOf(subtractStrings.getAlterationType()));
-                        replacedText.setText(subtractStrings.findReplacedText(subtractStrings.getAlterationType(), oldText.getText().toString(), newText.getText().toString()));
-
-                        dialog.dismiss();
-                    }
-                });
-                builder.setNegativeButton("Dismiss", null);
-                builder.show();
+                textEntryDialog().show();
                 break;
             case R.id.undo_button:
                 mRunDoMixer.undo();
@@ -98,5 +77,30 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
 
+    }
+
+    AlertDialog.Builder textEntryDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog_AppCompat_Light);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.input_text_dialog, null);
+        builder.setView(view);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                EditText oldText, newText;
+
+                oldText = (EditText) ((AlertDialog) dialog).findViewById(R.id.old_text_entry);
+                newText = (EditText) ((AlertDialog) dialog).findViewById(R.id.new_text_entry);
+
+                output.setText(subtractStrings.findAlteredText(oldText.getText().toString(), newText.getText().toString()));
+
+                statusOutput.setText(String.valueOf(subtractStrings.getAlterationType()));
+                replacedText.setText(subtractStrings.findReplacedText(subtractStrings.getAlterationType(), oldText.getText().toString(), newText.getText().toString()));
+
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Dismiss", null);
+        return builder;
     }
 }

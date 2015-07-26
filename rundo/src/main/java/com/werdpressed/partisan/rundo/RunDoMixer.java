@@ -295,7 +295,7 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         if (mArrayDequeUndo.peek() == null) {
             if (sendUndoQueueEmptyMessage) {
                 if (undoQueueEmptyString == null) {
-                    undoQueueEmptyString = getString(R.string.etw_undo_array_empty);
+                    undoQueueEmptyString = getString(R.string.rundo_rd_undo_array_empty);
                 }
                 Toast.makeText(getActivity(), undoQueueEmptyString, Toast.LENGTH_SHORT).show();
             }
@@ -372,7 +372,7 @@ public class RunDoMixer extends Fragment implements TextWatcher {
         if (mArrayDequeRedo.peek() == null) {
             if (sendRedoQueueEmptyMessage) {
                 if (redoQueueEmptyString == null) {
-                    redoQueueEmptyString = getString(R.string.etw_redo_array_empty);
+                    redoQueueEmptyString = getString(R.string.rundo_rd_redo_array_empty);
                 }
                 Toast.makeText(getActivity(), redoQueueEmptyString, Toast.LENGTH_SHORT).show();
             }
@@ -478,7 +478,7 @@ public class RunDoMixer extends Fragment implements TextWatcher {
     public void setEditText(Object object) {
         if (!(object instanceof EditText)) {
             throw new ClassCastException(object.toString() +
-                    getString(R.string.etw_constructor_error_class_cast));
+                    getString(R.string.rundo_rd_constructor_error_class_cast));
         }
         mEditText = (EditText) object;
     }
