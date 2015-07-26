@@ -14,7 +14,7 @@ This library aims to counteract some of the performance problems that can occur 
 
 ##### jcenter()
 
-Add the following to your module's 'build.gradle' file:
+Add the following to your module's `build.gradle` file:
 
     dependencies {
         compile 'com.werdpressed.partisan:rundo:0.1'
