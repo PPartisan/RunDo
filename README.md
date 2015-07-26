@@ -10,6 +10,26 @@ This library aims to counteract some of the performance problems that can occur 
 
 ## Implementation ##
 
+### Gradle Dependency
+
+##### jcenter()
+
+Add the following to your module's 'build.gradle' file:
+
+    dependencies {
+        compile 'com.werdpressed.partisan:rundo:0.1'
+    }
+    
+#### maven
+
+If you experience issues, add the following in addition to the dependency above:
+
+    repositories {
+        maven {
+            url 'https://dl.bintray.com/ppartisan/maven/'
+        }
+    }
+
 #### Instantiation
 
 As the class extends `android.app.Fragment`, it requires `FragmentManager`
