@@ -20,7 +20,7 @@ Add the following to your module's `build.gradle` file:
         compile 'com.werdpressed.partisan:rundo:0.1'
     }
     
-#### maven
+##### maven
 
 If you experience issues, add the following in addition to the dependency above:
 
