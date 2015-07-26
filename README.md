@@ -1,5 +1,5 @@
 # RunDo
-![Banner Image](https://lh3.googleusercontent.com/DRLJ-TQltjoYbdjlBbWSSe3WCi8ynHg6o_mX77CJ0jbyN5m-DFfmO7EUPb8WLvBIf3UyBBeemYbbTpA=w1885-h877-rw)
+![Banner Image](https://rkewkg.dm2302.livefilestore.com/y3pWoDFizcSpcEAtB0Ghbzu7IRkH3FFsOh7rjWOo1FZjAE0ZWD6TI8ev-QIXzM__Oe5qk6XUv3mJ0nkR8W_yC5c67yjdBOejTTcncQxLR2UUtn5dwLW7TY3GGFkAINizyYHI9V-lnYHxSn7EgPd-R1oWg/banner_scaled.png?psid=1)
 
 __RunDo__ allows developers to add Undo/Redo functionality to editable text fields in Android.  
 
@@ -75,7 +75,7 @@ For example:
     
 #### Visual Feedback
 
-![Undo Empty Feedback](https://lh4.googleusercontent.com/06wUD6FtSokb8tH4-81IXukLrWFZiSIuWwbOZFFDIqkpqUg_klAL2SO6WqaDOrwsJd_8nX9ZN-AfvUg=w1896-h899)
+![Undo Empty Feedback](https://1qjzfq-ch3302.files.1drv.com/y3pJet4at0BL_DYpIakIfdshH7aL3806HjPtTngdMszH3iLSudMw55ikN7dxVwOxDeerHRbsoOxOFin1O19Kh-zpC3bOUBhgugnf7fEGngW22H48wZaJv_Llwzk_BojtT_LPj9kiOki36gXI3j-xlpXZp89WwPIf3UH285IKNJIm7k/004.png)
 
 A `Toast` notification will appear to let the user know that they have reached the end of the Undo/Redo queue. This will either occur if they are at one extreme end of a full queue, or if the next entry is `null`.
 
