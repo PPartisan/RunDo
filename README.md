@@ -8,6 +8,12 @@ This library aims to counteract some of the performance problems that can occur 
 * Only text that has changed between saves is committed to memory, rather than saving all text present in the widget.
 * Only short, altered sections of text are inserted whenever an `undo()` or `redo()` method is called, and text fields are updated intelligently based on whether old text is to be added to, deleted from or replaced. This can drastically increase performance on older hardware, as calling `setText()` with large volumes of text can cause UI freezes.
 
+## ChangeLog
+
+#### [View Changelog](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
+
+Current version is `v0.2`
+
 ## Implementation ##
 
 ### Gradle Dependency
@@ -87,7 +93,7 @@ By default, the follwing shortcuts are ennabled for hardware keyboard users:
 
 * `Ctrl + Z` for Undo
 * `Ctrl + Y` for Redo
-* 
+
 Deactivate with `setKeyboardShortcuts(false)`.
 
 #### Clearing Queues
