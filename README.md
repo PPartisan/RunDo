@@ -17,7 +17,7 @@ This library aims to counteract some of the performance problems that can occur 
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:0.1'
+        compile 'com.werdpressed.partisan:rundo:0.2'
     }
     
 ##### maven
@@ -79,14 +79,16 @@ For example:
 
 A `Toast` notification will appear to let the user know that they have reached the end of the Undo/Redo queue. This will either occur if they are at one extreme end of a full queue, or if the next entry is `null`.
 
-It is possible to deactivate this feature, or change the message, with `setUndoQueueEmptyMessage(boolean condition, String message)` and `setRedoQueueEmptyMessage(coolean condition, String message)`. Setting `condition` to `false` will deactivate these notifications entirely, whilst any non-`null` text in the second argument will override the default message.
+To deactivate this feature, or change the message, use `setUndoQueueEmptyMessage(boolean condition, String message)` and `setRedoQueueEmptyMessage(coolean condition, String message)`. Setting `condition` to `false` will deactivate these notifications entirely, whilst any non-`null` text in the second argument will override the default message.
 
 #### Hardware Keyboard Shortcuts
 
 By default, the follwing shortcuts are ennabled for hardware keyboard users:
+
 * `Ctrl + Z` for Undo
 * `Ctrl + Y` for Redo
-It is possible to deactive these with `setKeyboardShortcuts(false)`.
+* 
+Deactivate with `setKeyboardShortcuts(false)`.
 
 ### Callbacks
 
