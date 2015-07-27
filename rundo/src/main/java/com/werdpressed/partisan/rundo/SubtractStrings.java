@@ -246,25 +246,18 @@ public class SubtractStrings {
         boolean condition;
 
         condition = ((tempReverseDeviation + potentialOffsetSize) < largeText.length);
+
         maxCalculatedValue = (condition) ? (tempReverseDeviation + potentialOffsetSize) : (largeText.length);
 
         adjustedReverseDeviation = (tempReverseDeviation < potentialOffsetSize) ? (potentialOffsetSize) : tempReverseDeviation;
 
         for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
-            if (largeText[i] == largeText[i - potentialOffsetSize]) {
-                int returnValue = largeText.length - (i - potentialOffsetSize);
-                condition = ((returnValue - firstDeviation) < potentialOffsetSize);
-                return (condition) ? (firstDeviation + potentialOffsetSize) : returnValue;
+            if (largeText[i] == largeText[i - adjustedReverseDeviation]) {
+                return largeText.length - (i - adjustedReverseDeviation);
             }
         }
-
-        if (oldTextLarger) {
-            condition = (lastDeviationOldText < firstDeviation) ||
-                    ((largeText.length == smallText.length) && (lastDeviationOldText <= firstDeviation));
-        } else {
-            condition = (lastDeviationNewText < firstDeviation) ||
-                    ((largeText.length == smallText.length) && (lastDeviationNewText <= firstDeviation));
-        }
+        condition = ((lastDeviation - potentialOffsetSize )< firstDeviation) ||
+                ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
         return (condition) ? (lastDeviation + potentialOffsetSize) : lastDeviation;
     }
 

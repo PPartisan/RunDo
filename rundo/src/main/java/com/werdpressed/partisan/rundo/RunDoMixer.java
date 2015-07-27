@@ -59,6 +59,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
 
     private boolean autoSaveSwitch = true, returnFromConfigChange = false;
     private boolean hardwareShortcutsActive = true;
+    private boolean undoPressed = false, redoPressed = false;
 
     private boolean sendUndoQueueEmptyMessage = true, sendRedoQueueEmptyMessage = true;
     private String undoQueueEmptyString = null, redoQueueEmptyString = null;
@@ -74,6 +75,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
 
     private Handler mHandler;
     private Runnable mRunnable;
+    private boolean mRunnableActive;
 
     private String oldText, newText;
 
@@ -96,6 +98,23 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
     public interface UndoRedoCallbacks {
         void undoCalled();
         void redoCalled();
+    }
+
+    /**
+     * Returns new <code>RunDoMixer</code> instance with default values for {@link #countdown} and
+     * {@link #arraySize}
+     * @see #newInstance(int, int, int)
+     */
+    public static RunDoMixer newInstance(int editTextResourceId) {
+        RunDoMixer frag = new RunDoMixer();
+        Bundle args = new Bundle();
+
+        args.putInt(EDIT_TEXT_RESOURCE_ID, editTextResourceId);
+        args.putInt(COUNTDOWN_TIME, DEFAULT_COUNTDOWN);
+        args.putInt(UNDO_ARRAY_SIZE, DEFAULT_ARRAY_DEQUE_SIZE);
+
+        frag.setArguments(args);
+        return frag;
     }
 
     /**
@@ -161,7 +180,11 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
             @Override
             public void run() {
                 String storedString;
-                newText = mEditText.getText().toString();
+                if (undoPressed) {
+                    undoPressed = false;
+                } else {
+                    newText = mEditText.getText().toString();
+                }
 
                 if (!nullCheck()) {
                     storedString = mSubtractStrings.findAlteredTextInContext(oldText.toCharArray(),
@@ -173,7 +196,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
                                 mSubtractStrings.getLastDeviationNewText()
                         };
                     } else {
-                        index = new Integer[] {
+                        index = new Integer[]{
                                 mSubtractStrings.getFirstDeviation(),
                                 mSubtractStrings.getLastDeviation()
                         };
@@ -184,8 +207,11 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
                         mArrayDequeUndoAlt.addFirst(mSubtractStrings.getAlterationType());
                         mArrayDequeUndo.addFirst(storedString);
                     }
+                    oldText = mEditText.getText().toString();
+                    newText = null;
                     mTrackingState = TrackingState.ENDED;
                 }
+                mRunnableActive = false;
             }
         };
         mTrackingState = TrackingState.ENDED;
@@ -214,6 +240,9 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
         }
 
         mEditText.addTextChangedListener(this);
+
+        oldText = mEditText.getText().toString();
+
         if (hardwareShortcutsActive) {
             mEditText.setOnKeyListener(this);
         }
@@ -245,7 +274,8 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
 
         if (autoSaveSwitch && (mTrackingState == TrackingState.ENDED) && !returnFromConfigChange){
             oldText = mEditText.getText().toString();
-            mHandler.postDelayed(mRunnable, countdown);
+            //mHandler.postDelayed(mRunnable, countdown);
+            postDelayedRunnable();
             mTrackingState = TrackingState.CURRENT;
         }
         if (returnFromConfigChange) returnFromConfigChange = false;
@@ -261,7 +291,8 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
                     break;
                 case CURRENT:
                     mHandler.removeCallbacks(mRunnable);
-                    mHandler.postDelayed(mRunnable, countdown);
+                    //mHandler.postDelayed(mRunnable, countdown);
+                    postDelayedRunnable();
                     break;
                 case ENDED:
                     break;
@@ -312,7 +343,13 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
 
         if (nullCheck()) return;
 
-        mHandler.removeCallbacks(mRunnable);
+        if (mRunnableActive) {
+            mHandler.removeCallbacks(mRunnable);
+            newText = mEditText.getText().toString();
+            undoPressed = true;
+            mHandler.post(mRunnable);
+            return;
+        }
         mTrackingState = TrackingState.STARTED;
 
         String temp;
@@ -389,7 +426,6 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
 
         if (nullCheck()) return;
 
-        mHandler.removeCallbacks(mRunnable);
         mTrackingState = TrackingState.STARTED;
 
         String temp;
@@ -492,6 +528,13 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
         outState.putInt(SS_SECOND_DEVIATION, mSubtractStrings.getLastDeviation());
         outState.putInt(SS_OLD_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationOldText());
         outState.putInt(SS_NEW_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationNewText());
+    }
+
+    /**
+     * Clears all Undo and Redo queues
+     */
+    public void clearAllQueues(){
+        clearAllArrayDequeue();
     }
 
     /**
@@ -625,6 +668,11 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
 
     private boolean nullCheck(){
         return (oldText == null || mSubtractStrings == null || mEditText == null);
+    }
+
+    private void postDelayedRunnable(){
+        mHandler.postDelayed(mRunnable, countdown);
+        mRunnableActive = true;
     }
 
     private boolean nullCheck(String tag){

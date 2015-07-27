@@ -15,7 +15,7 @@ import com.werdpressed.partisan.rundo.SubtractStrings;
 import com.werdpressed.partisan.rundo.RunDoMixer;
 
 public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener{
+        View.OnClickListener, RunDoMixer.UndoRedoCallbacks{
 
     SubtractStrings subtractStrings;
     TextView output, statusOutput, replacedText;
@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements
                     .beginTransaction()
                     .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
                     .commit();
-            mRunDoMixer.setKeyboardShortcuts(true);
         }
 
         outputButton.setOnClickListener(this);
@@ -103,5 +102,15 @@ public class MainActivity extends AppCompatActivity implements
         });
         builder.setNegativeButton("Dismiss", null);
         return builder;
+    }
+
+    @Override
+    public void undoCalled() {
+
+    }
+
+    @Override
+    public void redoCalled() {
+
     }
 }
