@@ -90,7 +90,11 @@ By default, the follwing shortcuts are ennabled for hardware keyboard users:
 * 
 Deactivate with `setKeyboardShortcuts(false)`.
 
-### Callbacks
+#### Clearing Queues
+
+To clear all Undo and Redo queues, use `clearAllQueues()`
+
+#### Callbacks
 
 To receive a callback whenever `undo()` or `redo()` is called, have your class implement `RunDoMixer.UndoRedoCallbacks`. This will provide the following methods:
 
