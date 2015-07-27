@@ -52,6 +52,10 @@ As the class extends `android.app.Fragment`, it requires `FragmentManager`
            .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
            .commit();
     }
+    
+**Note:** _Since_ `v0.2`_,_ `newInstance(int editTextResourceId)` _can be used as shorthand for_ `newInstance(editTextResourceId, 0, 0)`_, to use default_ `countdown` _and_ `arraySize` _values._
+
+
 The `newInstance()` method takes three paramters, all `int` values. The first is the `id` of either an `EditText` object, or the `id` of an object of a class that inherits from `EditText`. It is possible to pass `0` and later assign something suitable with `setEditText(Object object)`.
 
 The other two parameters are optional. The first sets the countdown timer, in milliseconds, and determines how long  the system will wait from the last keypress before saving any altered text to the Undo queue. A value of less than one will revert to the default value of two seconds. The final parameter specifies the maximum size of the Undo and Redo queues before old entries are deleted. The default size is ten.
