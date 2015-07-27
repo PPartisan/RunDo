@@ -16,7 +16,7 @@ Current version is `v0.2`
 
 ## Implementation ##
 
-### Gradle Dependency
+#### Gradle Dependency
 
 ##### jcenter()
 
