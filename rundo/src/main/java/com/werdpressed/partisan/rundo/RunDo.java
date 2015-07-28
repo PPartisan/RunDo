@@ -18,13 +18,13 @@ import com.werdpressed.partisan.rundo.SubtractStrings.AlterationType;
  * Adds Undo/Redo functions to either an instance of, or a class that inherits from, {@link EditText}
  * <br>
  * <br>
- * Implementation will often simply be a case of instantiating a <code>RunDoMixer</code> object,
+ * Implementation will often simply be a case of instantiating a <code>RunDo</code> object,
  * passing an <code>EditText</code> argument and calling {@link #undo()} and {@link #redo()} methods.
  *
  * @author Tom Calver
  */
 
-public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListener {
+public class RunDo extends Fragment implements TextWatcher, View.OnKeyListener {
 
     private static final int DEFAULT_COUNTDOWN = 2000;
     private static final int DEFAULT_ARRAY_DEQUE_SIZE = 10;
@@ -32,7 +32,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
     /**
      * Optional tag for use when calling {@link #newInstance(int, int, int)} in {@link android.app.FragmentManager}
      */
-    public static final String RUNDO_MIXER_TAG = "undo_redo_mixer_tag";
+    public static final String TAG = "undo_redo_mixer_tag";
 
     private static final String KEYBOARD_SHORTCUTS_ID = "keyboard_shortcuts_id";
 
@@ -56,10 +56,12 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
     private static final String UNDO_ARRAY_SIZE = "undo_array_size_id";
 
     private UndoRedoCallbacks mCallbacks;
+    private ErrorHandlingCallback mErrorCallbacks;
 
     private boolean autoSaveSwitch = true, returnFromConfigChange = false;
     private boolean hardwareShortcutsActive = true;
     private boolean undoPressed = false, redoPressed = false;
+    private boolean autoErrorHandling = true;
 
     private boolean sendUndoQueueEmptyMessage = true, sendRedoQueueEmptyMessage = true;
     private String undoQueueEmptyString = null, redoQueueEmptyString = null;
@@ -96,17 +98,47 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
      * Provides callbacks whenever {@link #undo()} and {@link #redo()} methods are called.
      */
     public interface UndoRedoCallbacks {
+        /**
+         * {@link #undo()} called.
+         */
         void undoCalled();
+
+        /**
+         * {@link #redo()} called.
+         */
         void redoCalled();
     }
 
     /**
-     * Returns new <code>RunDoMixer</code> instance with default values for {@link #countdown} and
+     * Implement for custom error handling if {@link IndexOutOfBoundsException} encountered when
+     * calling {@link #undo()} or {@link #redo()}.
+     * <br><br>
+     * If used in conjunction with {@link #setAutoErrorHandling(boolean)} set to <code>false</code>,
+     * it is recommended to at least call {@link #clearAllQueues()}, as Undo/Redo behaviour will
+     * likely be unpredictable after this exception.
+     * @see #setAutoErrorHandling(boolean)
+     * @see #getAutoErrorHandling()
+     */
+    public interface ErrorHandlingCallback {
+        /**
+         * Called if {@link IndexOutOfBoundsException} occurs in {@link #undo()} call.
+         * @param e Exception object
+         */
+        void undoError(IndexOutOfBoundsException e);
+        /**
+         * Called if {@link IndexOutOfBoundsException} occurs in {@link #redo()} call.
+         * @param e Exception object
+         */
+        void redoError(IndexOutOfBoundsException e);
+    }
+
+    /**
+     * Returns new <code>RunDo</code> instance with default values for {@link #countdown} and
      * {@link #arraySize}
      * @see #newInstance(int, int, int)
      */
-    public static RunDoMixer newInstance(int editTextResourceId) {
-        RunDoMixer frag = new RunDoMixer();
+    public static RunDo newInstance(int editTextResourceId) {
+        RunDo frag = new RunDo();
         Bundle args = new Bundle();
 
         args.putInt(EDIT_TEXT_RESOURCE_ID, editTextResourceId);
@@ -118,7 +150,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
     }
 
     /**
-     * Returns a new <code>RunDoMixer</code> instance.
+     * Returns a new <code>RunDo</code> instance.
      * <br>
      * <br>
      * Fragment is used to retain information through configuration changes.
@@ -139,10 +171,10 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
      *                  <br><br>
      *                  An argument with a value of less than
      *                  <code>1</code> will use the default value of <code>10</code>.
-     * @return New <code>RunDoMixer</code> instance, with arguments.
+     * @return New <code>RunDo</code> instance, with arguments.
      */
-    public static RunDoMixer newInstance(int editTextResourceId, int countDown, int arraySize) {
-        RunDoMixer frag = new RunDoMixer();
+    public static RunDo newInstance(int editTextResourceId, int countDown, int arraySize) {
+        RunDo frag = new RunDo();
         Bundle args = new Bundle();
 
         args.putInt(EDIT_TEXT_RESOURCE_ID, editTextResourceId);
@@ -159,6 +191,9 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
         super.onAttach(activity);
         if(activity instanceof UndoRedoCallbacks) {
             mCallbacks = (UndoRedoCallbacks) activity;
+        }
+        if(activity instanceof ErrorHandlingCallback) {
+            mErrorCallbacks = (ErrorHandlingCallback) activity;
         }
     }
 
@@ -209,6 +244,7 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
                     }
                     oldText = mEditText.getText().toString();
                     newText = null;
+                    clearRedoQueue();
                     mTrackingState = TrackingState.ENDED;
                 }
                 mRunnableActive = false;
@@ -402,9 +438,12 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
             if (mCallbacks != null) mCallbacks.undoCalled();
 
         } catch (IndexOutOfBoundsException i) {
-            Toast.makeText(getActivity(), i.toString(), Toast.LENGTH_SHORT).show();
-            sendLogInfo(Log.getStackTraceString(i));
-            clearAllArrayDequeue();
+            if (autoErrorHandling) {
+                Toast.makeText(getActivity(), i.toString(), Toast.LENGTH_SHORT).show();
+                sendLogInfo(Log.getStackTraceString(i));
+                clearAllArrayDequeue();
+            }
+            if (mErrorCallbacks != null) mErrorCallbacks.undoError(i);
         }
     }
 
@@ -478,9 +517,12 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
             if (mCallbacks != null) mCallbacks.redoCalled();
 
         } catch (IndexOutOfBoundsException i) {
-            Toast.makeText(getActivity(), i.toString(), Toast.LENGTH_SHORT).show();
-            sendLogInfo(Log.getStackTraceString(i));
-            clearAllArrayDequeue();
+            if(autoErrorHandling) {
+                Toast.makeText(getActivity(), i.toString(), Toast.LENGTH_SHORT).show();
+                sendLogInfo(Log.getStackTraceString(i));
+                clearAllArrayDequeue();
+            }
+            if (mErrorCallbacks != null) mErrorCallbacks.redoError(i);
         }
     }
 
@@ -488,6 +530,12 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
         mArrayDequeUndo.clear();
         mArrayDequeUndoAlt.clear();
         mArrayDequeUndoIndex.clear();
+        mArrayDequeRedo.clear();
+        mArrayDequeRedoAlt.clear();
+        mArrayDequeRedoIndex.clear();
+    }
+
+    private void clearRedoQueue(){
         mArrayDequeRedo.clear();
         mArrayDequeRedoAlt.clear();
         mArrayDequeRedoIndex.clear();
@@ -528,6 +576,34 @@ public class RunDoMixer extends Fragment implements TextWatcher, View.OnKeyListe
         outState.putInt(SS_SECOND_DEVIATION, mSubtractStrings.getLastDeviation());
         outState.putInt(SS_OLD_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationOldText());
         outState.putInt(SS_NEW_TEXT_LAST_DEVIATION, mSubtractStrings.getLastDeviationNewText());
+    }
+
+    /**
+     * Determines whether default error handling is enabled. When true, any {@link #undo()} or
+     * {@link #redo()} call that results in an {@link IndexOutOfBoundsException} will:
+     * <br><br>
+     * <ul>
+     *     <li>Send a {@link Toast} notification with error <code>toString()</code> message</li>
+     *     <li>Send output to <code>LogCat</code></li>
+     *     <li>Call {@link #clearAllArrayDequeue()}</li>
+     * </ul>
+     * <br><br>Custom handling can be set using {@link RunDo.ErrorHandlingCallback}
+     *
+     * @param autoErrorHandling <code>true</code> to enable default behaviour, <code>false</code>
+     *                          to disable.
+     * @see {@link RunDo.ErrorHandlingCallback}
+     */
+    public void setAutoErrorHandling(boolean autoErrorHandling){
+        this.autoErrorHandling = autoErrorHandling;
+    }
+
+    /**
+     * Returns whether default error handling for {@link IndexOutOfBoundsException}s in {@link #undo()}
+     * and {@link #redo()} are enabled.
+     * @return <code>true</code> if default behaviour active.
+     */
+    public boolean getAutoErrorHandling(){
+        return autoErrorHandling;
     }
 
     /**

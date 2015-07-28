@@ -11,17 +11,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.werdpressed.partisan.rundo.RunDo;
 import com.werdpressed.partisan.rundo.SubtractStrings;
-import com.werdpressed.partisan.rundo.RunDoMixer;
 
 public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener, RunDoMixer.UndoRedoCallbacks{
+        View.OnClickListener, RunDo.UndoRedoCallbacks{
 
     SubtractStrings subtractStrings;
     TextView output, statusOutput, replacedText;
     Button outputButton, undoButton, redoButton;
     EditText testEditText;
-    RunDoMixer mRunDoMixer = null;
+    RunDo mRunDo = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +39,14 @@ public class MainActivity extends AppCompatActivity implements
 
         subtractStrings = new SubtractStrings();
 
-        mRunDoMixer = (RunDoMixer) getFragmentManager().findFragmentByTag(RunDoMixer.RUNDO_MIXER_TAG);
+        mRunDo = (RunDo) getFragmentManager().findFragmentByTag(RunDo.TAG);
 
-        if (mRunDoMixer == null) {
+        if (mRunDo == null) {
             testEditText = (EditText) findViewById(R.id.test_edit_text);
-            mRunDoMixer = RunDoMixer.newInstance(testEditText.getId(), 0, 0);
+            mRunDo = RunDo.newInstance(testEditText.getId(), 0, 0);
             getFragmentManager()
                     .beginTransaction()
-                    .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
+                    .add(mRunDo, RunDo.TAG)
                     .commit();
         }
 
@@ -70,10 +70,10 @@ public class MainActivity extends AppCompatActivity implements
                 textEntryDialog().show();
                 break;
             case R.id.undo_button:
-                mRunDoMixer.undo();
+                mRunDo.undo();
                 break;
             case R.id.redo_button:
-                mRunDoMixer.redo();
+                mRunDo.redo();
                 break;
         }
 
