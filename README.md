@@ -8,16 +8,22 @@ This library aims to counteract some of the performance problems that can occur 
 * Only text that has changed between saves is committed to memory, rather than saving all text present in the widget.
 * Only short, altered sections of text are inserted whenever an `undo()` or `redo()` method is called, and text fields are updated intelligently based on whether old text is to be added to, deleted from or replaced. This can drastically increase performance on older hardware, as calling `setText()` with large volumes of text can cause UI freezes.
 
+## ChangeLog
+
+#### [View Changelog](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
+
+Current version is `v0.2`
+
 ## Implementation ##
 
-### Gradle Dependency
+#### Gradle Dependency
 
 ##### jcenter()
 
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:0.1'
+        compile 'com.werdpressed.partisan:rundo:0.2'
     }
     
 ##### maven
@@ -46,6 +52,10 @@ As the class extends `android.app.Fragment`, it requires `FragmentManager`
            .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
            .commit();
     }
+    
+**Note:** _Since_ `v0.2`_,_ `newInstance(int editTextResourceId)` _can be used as shorthand for_ `newInstance(editTextResourceId, 0, 0)`_, to use default_ `countdown` _and_ `arraySize` _values._
+
+
 The `newInstance()` method takes three paramters, all `int` values. The first is the `id` of either an `EditText` object, or the `id` of an object of a class that inherits from `EditText`. It is possible to pass `0` and later assign something suitable with `setEditText(Object object)`.
 
 The other two parameters are optional. The first sets the countdown timer, in milliseconds, and determines how long  the system will wait from the last keypress before saving any altered text to the Undo queue. A value of less than one will revert to the default value of two seconds. The final parameter specifies the maximum size of the Undo and Redo queues before old entries are deleted. The default size is ten.
@@ -79,16 +89,22 @@ For example:
 
 A `Toast` notification will appear to let the user know that they have reached the end of the Undo/Redo queue. This will either occur if they are at one extreme end of a full queue, or if the next entry is `null`.
 
-It is possible to deactivate this feature, or change the message, with `setUndoQueueEmptyMessage(boolean condition, String message)` and `setRedoQueueEmptyMessage(coolean condition, String message)`. Setting `condition` to `false` will deactivate these notifications entirely, whilst any non-`null` text in the second argument will override the default message.
+To deactivate this feature, or change the message, use `setUndoQueueEmptyMessage(boolean condition, String message)` and `setRedoQueueEmptyMessage(coolean condition, String message)`. Setting `condition` to `false` will deactivate these notifications entirely, whilst any non-`null` text in the second argument will override the default message.
 
 #### Hardware Keyboard Shortcuts
 
 By default, the follwing shortcuts are ennabled for hardware keyboard users:
+
 * `Ctrl + Z` for Undo
 * `Ctrl + Y` for Redo
-It is possible to deactive these with `setKeyboardShortcuts(false)`.
 
-### Callbacks
+Deactivate with `setKeyboardShortcuts(false)`.
+
+#### Clearing Queues
+
+To clear all Undo and Redo queues, use `clearAllQueues()`
+
+#### Callbacks
 
 To receive a callback whenever `undo()` or `redo()` is called, have your class implement `RunDoMixer.UndoRedoCallbacks`. This will provide the following methods:
 
