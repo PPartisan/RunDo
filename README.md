@@ -8,11 +8,13 @@ This library aims to counteract some of the performance problems that can occur 
 * Only text that has changed between saves is committed to memory, rather than saving all text present in the widget.
 * Only short, altered sections of text are inserted whenever an `undo()` or `redo()` method is called, and text fields are updated intelligently based on whether old text is to be added to, deleted from or replaced. This can drastically increase performance on older hardware, as calling `setText()` with large volumes of text can cause UI freezes.
 
-## ChangeLog
+## Releases
 
-#### [View Changelog](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
+#### [View Releases](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
 
-Current version is `v0.2`
+Current version is `v0.2.1`
+
+JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/JavaDoc/index.html "JavaDoc")
 
 ## Implementation ##
 
@@ -23,7 +25,7 @@ Current version is `v0.2`
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:0.2'
+        compile 'com.werdpressed.partisan:rundo:0.2.1'
     }
     
 ##### maven
@@ -38,34 +40,35 @@ If you experience issues, add the following in addition to the dependency above:
 
 #### Instantiation
 
-As the class extends `android.app.Fragment`, it requires `FragmentManager`
+`RunDo` extends `android.app.Fragment`:
 
-    RunDoMixer mRunDoMixer;
+    RunDo mRunDo;
     //...
-    mRunDoMixer = (RunDoMixer) getFragmentManager().findFragmentByTag(RunDoMixer.RUNDO_MIXER_TAG);
+    mRunDo = (RunDo) getFragmentManager().findFragmentByTag(RunDo.TAG);
 
-    if (mRunDoMixer == null) {
+    if (mRunDo == null) {
        testEditText = (EditText) findViewById(R.id.test_edit_text);
-       mRunDoMixer = RunDoMixer.newInstance(testEditText.getId(), 0, 0);
+       mRunDo = RunDoMixer.newInstance(testEditText.getId());
        getFragmentManager()
            .beginTransaction()
-           .add(mRunDoMixer, RunDoMixer.RUNDO_MIXER_TAG)
+           .add(mRunDo, RunDo.TAG)
            .commit();
     }
     
-**Note:** _Since_ `v0.2`_,_ `newInstance(int editTextResourceId)` _can be used as shorthand for_ `newInstance(editTextResourceId, 0, 0)`_, to use default_ `countdown` _and_ `arraySize` _values._
+`newInstance(int editTextResourceId)` is shorthand for `newInstance(editTextResourceId, 0, 0)`.
 
+The `newInstance()` method takes the `id` of either an `EditText` object, or the `id` of an object of a class that inherits from `EditText`, as its sole argument. It is possible to pass `0` and later assign something suitable with `setEditText(Object object)`.
 
-The `newInstance()` method takes three paramters, all `int` values. The first is the `id` of either an `EditText` object, or the `id` of an object of a class that inherits from `EditText`. It is possible to pass `0` and later assign something suitable with `setEditText(Object object)`.
+There are two additional, optional, parameters if using `newInstance(int editTextResourceId, int countDown, int arraySize)`. The first sets the countdown timer, in milliseconds, and determines how long  the system will wait from the last keypress before saving any altered text to the Undo queue. A value of less than one will revert to the default value of two seconds. The final parameter specifies the maximum size of the Undo and Redo queues before old entries are deleted. Again, a value of less than one will use the default size of ten.
 
-The other two parameters are optional. The first sets the countdown timer, in milliseconds, and determines how long  the system will wait from the last keypress before saving any altered text to the Undo queue. A value of less than one will revert to the default value of two seconds. The final parameter specifies the maximum size of the Undo and Redo queues before old entries are deleted. The default size is ten.
+JavaDoc entry for [`newInstance(int)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#newInstance(int) "newInstance(int)") and [`newInstance(int, int, int)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#newInstance(int,%20int,%20int) "newInstance(int, int, int)")
 
 #### Calling Undo/Redo
 
-To call Undo or Redo, use the `undo()` and `redo()` methods on the `RunDoMixer` object:
+To call Undo or Redo, use the `undo()` and `redo()` methods on the `RunDo` object:
 
-    mRunDoMixer.undo();
-    mRunDoMixer.redo();
+    mRunDo.undo();
+    mRunDo.redo();
 
 For example:
 
@@ -74,10 +77,10 @@ For example:
         int id = v.getId();
         switch (id) {
             case R.id.undo_button:
-                mRunDoMixer.undo();
+                mRunDo.undo();
                 break;
             case R.id.redo_button:
-                mRunDoMixer.redo();
+                mRunDo.redo();
                 break;
         }
 
@@ -93,7 +96,7 @@ To deactivate this feature, or change the message, use `setUndoQueueEmptyMessage
 
 #### Hardware Keyboard Shortcuts
 
-By default, the follwing shortcuts are ennabled for hardware keyboard users:
+By default, the follwing shortcuts are enabled for hardware keyboard users:
 
 * `Ctrl + Z` for Undo
 * `Ctrl + Y` for Redo
@@ -114,6 +117,24 @@ To receive a callback whenever `undo()` or `redo()` is called, have your class i
 
     @Override
     public void redoCalled() {
+    }
+    
+#### Error Handling
+
+The `undo()` and `redo()` methods should not throw any errors, but are nonetheless enclosed in `try/catch` blocks in case `IndexOutOfBoundsException` occurs when calculating deviation points or setting text.
+
+By default, a `Toast` notification will appear with the exception's `toString()` result as its content, the stack trace printed to `LogCat` and all Undo and Redo queues cleared. To disable this behaviour, use `setAutoErrorHandling(false)`.
+
+To create your own error handling, implement `RunDo.ErrorHandlingCallback` and use the resulting methods:
+
+    @Override
+    public void undoError(IndexOutOfBoundsException e) {
+        //Error handling code
+    }
+
+    @Override
+    public void redoError(IndexOutOfBoundsException e) {
+        //Error handling code
     }
 
 ## Other Extras...
