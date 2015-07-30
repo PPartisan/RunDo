@@ -20,7 +20,7 @@ JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/Java
 
 #### Gradle Dependency
 
-##### jcenter()
+##### jcenter() & mavenCentral()
 
 Add the following to your module's `build.gradle` file:
 
