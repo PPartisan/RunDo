@@ -12,7 +12,7 @@ This library aims to counteract some of the performance problems that can occur 
 
 #### [View Releases](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
 
-Current version is `v0.2.1`
+Current version is `v0.2.2`
 
 JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/JavaDoc/index.html "JavaDoc")
 
@@ -25,7 +25,7 @@ JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/Java
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:0.2.1'
+        compile 'com.werdpressed.partisan:rundo:0.2.2'
     }
     
 ##### maven
@@ -136,6 +136,8 @@ To create your own error handling, implement `RunDo.ErrorHandlingCallback` and u
     public void redoError(IndexOutOfBoundsException e) {
         //Error handling code
     }
+
+It is strongly recommended that `clearAllQueues()` is called if auto error handling is disabled, as it is likely the data stored in both queues is invalid.
 
 ## Other Extras...
 
