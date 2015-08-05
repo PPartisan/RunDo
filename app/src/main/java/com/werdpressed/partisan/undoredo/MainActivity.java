@@ -15,7 +15,7 @@ import com.werdpressed.partisan.rundo.RunDo;
 import com.werdpressed.partisan.rundo.SubtractStrings;
 
 public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener, RunDo.UndoRedoCallbacks{
+        View.OnClickListener, RunDo.UndoRedoCallbacks, RunDo.ErrorHandlingCallback{
 
     SubtractStrings subtractStrings;
     TextView output, statusOutput, replacedText;
@@ -111,6 +111,16 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void redoCalled() {
+
+    }
+
+    @Override
+    public void undoError(IndexOutOfBoundsException e) {
+
+    }
+
+    @Override
+    public void redoError(IndexOutOfBoundsException e) {
 
     }
 }

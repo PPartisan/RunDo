@@ -79,7 +79,7 @@ public class RunDo extends Fragment implements TextWatcher, View.OnKeyListener {
     private Runnable mRunnable;
     private boolean mRunnableActive;
 
-    private String oldText, newText;
+    private String oldText = null, newText = null;
 
     private CustomArrayDeque<String> mArrayDequeUndo, mArrayDequeRedo;
     private CustomArrayDeque<Integer[]> mArrayDequeUndoIndex, mArrayDequeRedoIndex;
@@ -309,8 +309,7 @@ public class RunDo extends Fragment implements TextWatcher, View.OnKeyListener {
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
         if (autoSaveSwitch && (mTrackingState == TrackingState.ENDED) && !returnFromConfigChange){
-            oldText = mEditText.getText().toString();
-            //mHandler.postDelayed(mRunnable, countdown);
+            if (oldText == null) oldText = mEditText.getText().toString();
             postDelayedRunnable();
             mTrackingState = TrackingState.CURRENT;
         }
@@ -327,7 +326,6 @@ public class RunDo extends Fragment implements TextWatcher, View.OnKeyListener {
                     break;
                 case CURRENT:
                     mHandler.removeCallbacks(mRunnable);
-                    //mHandler.postDelayed(mRunnable, countdown);
                     postDelayedRunnable();
                     break;
                 case ENDED:
