@@ -137,6 +137,8 @@ To create your own error handling, implement `RunDo.ErrorHandlingCallback` and u
         //Error handling code
     }
 
+It is strongly recommended that `clearAllQueues()` is called if auto error handling is disabled, as it is likely the data stored in both queues is invalid.
+
 ## Other Extras...
 
 __RunDo__ relies heavily on a custom `String` comparison class called `SubtractStrings`. `SubtractStrings` compares two `String` objects, and returns data regarding:
