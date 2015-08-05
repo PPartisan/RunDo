@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/PPartisan/RunDo'
     gitUrl = 'https://github.com/PPartisan/RunDo.git'
 
-    libraryVersion = '0.2.1'
+    libraryVersion = '0.2.3'
 
     developerId = 'ppartisan'
     developerName = 'Tom Calver'
@@ -32,7 +32,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 22
         versionCode 1
-        versionName "0.2.1"
+        versionName "0.2.3"
     }
     buildTypes {
         release {

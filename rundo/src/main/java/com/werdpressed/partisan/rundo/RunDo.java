@@ -442,6 +442,8 @@ public class RunDo extends Fragment implements TextWatcher, View.OnKeyListener {
                 clearAllArrayDequeue();
             }
             if (mErrorCallbacks != null) mErrorCallbacks.undoError(i);
+        } finally {
+            oldText = mEditText.getText().toString();
         }
     }
 
@@ -521,6 +523,8 @@ public class RunDo extends Fragment implements TextWatcher, View.OnKeyListener {
                 clearAllArrayDequeue();
             }
             if (mErrorCallbacks != null) mErrorCallbacks.redoError(i);
+        } finally {
+            oldText = mEditText.getText().toString();
         }
     }
 
