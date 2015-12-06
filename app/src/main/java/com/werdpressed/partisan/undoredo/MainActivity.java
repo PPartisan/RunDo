@@ -30,8 +30,7 @@ public class MainActivity extends AppCompatActivity implements
         redoButton.setOnClickListener(this);
 
         mRunDo = RunDo.Factory.getInstance(getSupportFragmentManager(), this);
-        mRunDo.setQueueSize(20);
-        mRunDo.setTimerLength(1000);
+
     }
 
     @Override
