@@ -3,4 +3,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="undo_button">undo</string>
+    <string name="redo_button">redo</string>
 </resources>

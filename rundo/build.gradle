@@ -5,34 +5,34 @@ ext {
     bintrayName = 'rundo'
 
     publishedGroupId = 'com.werdpressed.partisan'
-    libraryName = 'RunDo'
+    libraryName = 'RunDoOld'
     artifact = 'rundo'
 
     libraryDescription = 'Add Undo/Redo functionality to Android text fields'
 
-    siteUrl = 'https://github.com/PPartisan/RunDo'
-    gitUrl = 'https://github.com/PPartisan/RunDo.git'
+    siteUrl = 'https://github.com/PPartisan/RunDoOld'
+    gitUrl = 'https://github.com/PPartisan/RunDoOld.git'
 
-    libraryVersion = '0.2.3'
+    libraryVersion = '1.0.0'
 
     developerId = 'ppartisan'
     developerName = 'Tom Calver'
     developerEmail = 't.d.calver@gmail.com'
 
     licenseName = 'The MIT License (MIT)'
-    licenseUrl = 'https://github.com/PPartisan/RunDo/blob/master/LICENSE.md'
+    licenseUrl = 'https://github.com/PPartisan/RunDoOld/blob/master/LICENSE.md'
     allLicenses = ["MIT"]
 }
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 22
+        minSdkVersion 9
+        targetSdkVersion 23
         versionCode 1
-        versionName "0.2.3"
+        versionName "1.0.0"
     }
     buildTypes {
         release {
@@ -45,7 +45,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
 }
 
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'

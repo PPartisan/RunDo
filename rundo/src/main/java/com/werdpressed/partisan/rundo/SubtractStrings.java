@@ -1,534 +1,472 @@
 package com.werdpressed.partisan.rundo;
 
-import android.util.Log;
-
 import java.util.Arrays;
 
-/**
- * Compares two {@link String} objects and returns the first and last points they deviate from one
- * another, <code>subString</code>s between the two, and information on whether or not text has
- * been added, replaced or deleted.
- *
- * @author Tom Calver
- */
+//Immutable
+final class SubtractStrings {
 
-public class SubtractStrings {
+    private static final String TAG = "SubtractStrings";
 
-    char[] oldText, newText;
+    static final int ADDITION = 55023;
+    static final int REPLACEMENT = ADDITION + 1;
+    static final int DELETION = REPLACEMENT + 1;
+    static final int UNCHANGED = DELETION + 1;
+
+    private final char[] mOldText, mNewText;
+    private final char[] mOldTextReversed, mNewTextReversed;
 
     private int firstDeviation, lastDeviation, tempReverseDeviation;
     private int lastDeviationOldText, lastDeviationNewText;
+    private int deviationType;
+    private int shortestLength, longestLength;
 
-    private AlterationType alterationType;
+    private final boolean isNewTextLonger, isTextLengthEqual;
 
-    enum AlterationType {
-        ADDITION, REPLACEMENT, DELETION, UNCHANGED
+    public SubtractStrings(String oldString, String newString) {
+
+        mOldText = oldString.toCharArray();
+        mNewText = newString.toCharArray();
+
+        mOldTextReversed = reverseCharArray(mOldText);
+        mNewTextReversed = reverseCharArray(mNewText);
+
+        shortestLength = findShortestLength(mOldText, mNewText);
+        longestLength = findLongestLength(mOldText, mNewText);
+
+        isNewTextLonger = (mNewText.length > mOldText.length);
+        isTextLengthEqual = (mNewText.length == mOldText.length);
+
+        findDeviations();
     }
 
-    /**
-     * Default constructor
-     */
-    public SubtractStrings() {
-    }
-
-    /**
-     * Contains the two <code>String</code>s to be compared.
-     *
-     * <br><br>The order of the arguments determines the results of
-     * certain methods (i.e. if <code>oldText</code> is empty,
-     * but <code>newText</code> populated, the change will be regarded as an <code>ADDITION</code>
-     * rather than <code>DELETION</code>)
-     *
-     * @param oldText Old Text to compare.
-     * @param newText New Text to compare.
-     */
-    public SubtractStrings(String oldText, String newText) {
-        this.oldText = oldText.toCharArray();
-        this.newText = newText.toCharArray();
-    }
-
-    /**
-     * Calculates the first point of deviation between two arguments, and stores it to <code>firstDeviation</code>
-     *
-     * @param oldText Old Text to compare.
-     * @param newText New Text to compare.
-     */
-    private void findFirstDeviation(char[] oldText, char[] newText) {
-
-        if (Arrays.equals(oldText, newText)) {
+    private void findDeviations() {
+        //check equality. If equal, exit early
+        if (checkCharArraysEqual()) {
             return;
         }
+        //populate first deviation
+        findFirstDeviation();
+        //find last deviation
+        findLastDeviation();
+        //Calculate offset that may occur on last deviation
+        findLastDeviationOffset();
+        //Find deviation type (Add, Delete, Replace)
+        findDeviationType();
+    }
 
-        int shortestLength = findShortestLength(oldText, newText);
+    /**
+     * Checks whether old and new text are equal. If they are equal, then no deviations are recorded.
+     * @return True if new and old text are equal.
+     */
+    private boolean checkCharArraysEqual() {
+        if (Arrays.equals(mOldText, mNewText)) {
+            firstDeviation = lastDeviation = 0;
+            deviationType = UNCHANGED;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Calculates the first point of deviation between old and new text, by comparing each individual
+     * char from beginning to end.
+     *
+     * @see #getFirstDeviation()
+     */
+    private void findFirstDeviation() {
 
         for (int i = 0; i < shortestLength; i++) {
-            if (oldText[i] != newText[i]) {
+            if (mOldText[i] != mNewText[i]) {
                 firstDeviation = i;
                 return;
             }
         }
+
         firstDeviation = shortestLength;
+
     }
 
     /**
-     * Calculates the last point of deviation between the two arguments, in respect to the value with the longer length.
+     * Calculates the last point of deviation by reversing old and new text, and repeating the same
+     * process as {@link #findFirstDeviation()}. Different values are assigned for old and new text
+     * in order to effectively calculate what has changed between the two. This is especially
+     * relevant when text is replaced.
      *
-     * Unlike {@link #findLastDeviationInContext(char[], char[])}, the values assigned by this method
-     * will always be in respect to the longer of the two arguments, regardless of whether this is <code>oldText.length</code>
-     * or <code>newText.length</code>.
+     * Under certain circumstances, running both this and {@link #findFirstDeviation()} alone will
+     * produce incorrect results, especially when words are duplicated. For example:
      *
-     * @param oldText Old Text to compare.
-     * @param newText New Text to comapre.
+     * <pre>
+     *     {@code
+     *     int firstDeviation, lastDeviation;
      *
-     * @see #findLastDeviationInContext(char[], char[])
+     *     char[] mOldText = new String("one").toCharArray();
+     *     char[] mNewText = new String("one one").toCharArray();
+     *
+     *     findFirstDeviation();
+     *     findLastDeviation();
+     *
+     *     String output = new String(mNewText).subString(firstDeviation, lastDeviation);
+     *
+     *     //firstDeviation will equal 3, last deviation 4, and "output" will be " ".
+     *     }
+     * </pre>
+     *
+     * This is because the first deviation comes after the first "e", at index 3, yet when the
+     * arrays are reversed, the "e" at the end of "one" in mOldText shifts to index 0. It is
+     * effectively counted twice:
+     *
+     * <pre>
+     *     {@code
+     *     char[] mOldText = new char[]{ 'o', 'n', 'e' }
+     *     char[] mNewText = new char[]{ 'o', 'n', 'e', ' ', 'o', 'n', 'e' };
+     *
+     *     mOldTextReversed = new char[]{ 'e', 'n', 'o' };
+     *     mNewTextReversed = new char[]{ 'e', 'n', 'o', ' ', 'e', 'n', 'o'};
+     *     }
+     * </pre>
+     *
+     * lastDeviation values are adjusted in {@link #findLastDeviationOffset()} to account for such
+     * situations.
+     *
+     * @see #getLastDeviation()
+     *
      */
-    private void findLastDeviation(char[] oldText, char[] newText) {
-
-        char[] oldTextReversed = reverseText(oldText);
-        char[] newTextReversed = reverseText(newText);
-
-        if (Arrays.equals(oldText, newText)) {
-            return;
-        }
-
-        int shortestLength = findShortestLength(oldTextReversed, newTextReversed);
-        int longestLength = findLongestLength(oldTextReversed, newTextReversed);
+    private void findLastDeviation() {
 
         for (int i = 0; i < shortestLength; i++) {
-            if (oldTextReversed[i] != newTextReversed[i]) {
+            if (mOldTextReversed[i] != mNewTextReversed[i]) {
                 tempReverseDeviation = i;
-                lastDeviation = (longestLength - i);
+                lastDeviationNewText = (isNewTextLonger) ? (longestLength - i) : (shortestLength - i);
+                lastDeviationOldText = (isNewTextLonger) ? (shortestLength - i) : (longestLength - i);
+                lastDeviation = (isNewTextLonger) ? lastDeviationNewText : lastDeviationOldText;
                 return;
             }
         }
+
         tempReverseDeviation = shortestLength;
-        lastDeviation = longestLength - shortestLength;
+        lastDeviation = (longestLength - shortestLength);
+        lastDeviationNewText = (isNewTextLonger) ? (longestLength - shortestLength) : shortestLength;
+        lastDeviationOldText = (isNewTextLonger) ? shortestLength : (longestLength - shortestLength);
+
     }
 
     /**
-     * Calculates the last point of deviation between the two arguments, in respect to <code>newText</code>.
-     *
-     * Unlike {@link #findLastDeviation(char[], char[])}, the values assigned by this method will be
-     * in respect to the <code>newText</code> parameter, regardless of whether <code>newText.length</code>
-     * is longer or shorter than <code>oldText.length</code>
-     *
-     * @param oldText Old Text
-     * @param newText New Text
-     *
-     * @see #findLastDeviation(char[], char[])
+     * Takes the {@link #lastDeviation} value adjusted in {@link #findLastDeviationOffsetSize()}, and
+     * applies to {@link #lastDeviationNewText} and {@link #lastDeviationOldText}
      */
-    private void findLastDeviationInContext(char[] oldText, char[] newText) {
+    private void findLastDeviationOffset() {
 
-        char[] oldTextReversed = reverseText(oldText);
-        char[] newTextReversed = reverseText(newText);
+        int deviationOffset = findLastDeviationOffsetSize();
+        int offsetValue = longestLength - shortestLength;
 
-        boolean condition = (newText.length > oldText.length);
+        lastDeviationNewText = (isNewTextLonger) ? deviationOffset : deviationOffset - offsetValue;
+        lastDeviationOldText = (isNewTextLonger) ? deviationOffset - offsetValue : deviationOffset;
 
-        if (Arrays.equals(oldText, newText)) {
-            return;
-        }
+    }
 
-        int shortestLength = findShortestLength(oldTextReversed, newTextReversed);
-        int longestLength = findLongestLength(oldTextReversed, newTextReversed);
+    /**
+     * Adjusts the last point at which the two char[] diverge, due to the reasons outlined in
+     * {@link #findLastDeviation()}. This is achieved by calculating the difference in length between
+     * the old and new text, and comparing each char from this final end point to the char at the
+     * same position less the offset difference. If the same value is found, then the current
+     * index is used to determine the true last deviation value. For example:
+     *
+     * <pre>
+     *     {@code
+     *     mOldTextReversed = new char[]{ 'e', 'n', 'o' };
+     *     mNewTextReversed = new char[]{ 'e', 'n', 'o', ' ', 'e', 'n', 'o'};
+     *     }
+     * </pre>
+     *
+     * In this case, the potential offset size (the length of the longest array subtracted from the
+     * shortest) is {@code(7 - 3) = 4}. Thus, the char at index [4] of the longest array, which is
+     * 'e', is compared to the char at index[0] (4 - (potentialOffsetSize of 4) = 0), which is also
+     * 'e'. As the two values match, the final value assigned to {@link #lastDeviation} is
+     * (length of the longest array - (current index - potential offset size)), which translates
+     * to (7 - (4 - 0)) = 3.
+     *
+     * @return The adjusted last deviation value.
+     */
+    private int findLastDeviationOffsetSize() {
 
-        for (int i = 0; i < shortestLength; i++) {
-            if (oldTextReversed[i] != newTextReversed[i]) {
-                tempReverseDeviation = i;
-                lastDeviationNewText = (condition) ? (longestLength - i) : (shortestLength - i);
-                lastDeviationOldText = (condition) ? (shortestLength - i) : (longestLength - i);
-                lastDeviation = (condition) ? lastDeviationNewText : lastDeviationOldText;
-                return;
+        final char[] longestArray = (isNewTextLonger) ? mNewTextReversed : mOldTextReversed;
+
+        final int potentialOffsetSize = longestLength - shortestLength;
+
+        boolean isOffsetWithinArrayBounds =
+                ((tempReverseDeviation + potentialOffsetSize) < longestLength);
+
+        final int maxValue = (isOffsetWithinArrayBounds)
+                ? (tempReverseDeviation + potentialOffsetSize)
+                : longestLength;
+
+        final int reverseDeviation = (tempReverseDeviation < potentialOffsetSize)
+                ? potentialOffsetSize
+                : tempReverseDeviation;
+
+        for (int i = reverseDeviation; i < maxValue; i++) {
+
+            if (longestArray[i] == longestArray[i - reverseDeviation]) {
+                return (longestLength - (i - potentialOffsetSize));
             }
-        }
-        tempReverseDeviation = shortestLength;
-        lastDeviation = longestLength - shortestLength;
-        lastDeviationNewText = (condition) ? (longestLength - shortestLength) : shortestLength;
-        lastDeviationOldText = (condition) ? shortestLength : (longestLength - shortestLength);
-    }
 
-    /**
-     * Convenience method for calculating {@link #findFirstDeviation(char[], char[])} and
-     * {@link #findLastDeviationInContext(char[], char[])} simultaneously.
-     *
-     * @param oldText Old Text
-     * @param newText New Text
-     *
-     * @see #findDeviations(char[], char[])
-     */
-    private void findDeviationsInContext(char[] oldText, char[] newText) {
-
-        findFirstDeviation(oldText, newText);
-        findLastDeviationInContext(oldText, newText);
-    }
-
-    /**
-     * Calculates the difference between the two arguments, and returns a <code>subString</code>
-     * based on whether or not text has been added, deleted or replaced.
-     *
-     * If text has been replaced, this method will always return a <code>subString</code> from the
-     * <code>newText</code> parameter.
-     *
-     * @param oldText Old Text
-     * @param newText New Text
-     * @return <code>subString</code> of <code>newText</code> if text has been replaced, or a
-     * <code>subString</code> of either <code>oldText</code> or <code>newText</code> if an addition
-     * or deletion has occured.
-     *
-     * @see #findAlteredText(char[], char[])
-     * @see #findAlteredText(String, String)
-     */
-    public String findAlteredTextInContext(char[] oldText, char[] newText) {
-
-        if (Arrays.equals(oldText, newText)) {
-            return null;
         }
 
-        String oldString = new String(oldText);
-        String newString = new String(newText);
-        findDeviationsInContext(oldText, newText);
-        offsetCheckResultInContext(oldText, newText);
-        alterationType = findAlterationType(oldText, newText);
-
-        if (alterationType == AlterationType.REPLACEMENT) {
-            lastDeviation = lastDeviationNewText;
-            return oldString.substring(firstDeviation, lastDeviationOldText);
+        if (longestLength == mNewText.length) {
+            isOffsetWithinArrayBounds = ((lastDeviationNewText < firstDeviation));
+            lastDeviation = (isOffsetWithinArrayBounds)
+                    ? (lastDeviationNewText + potentialOffsetSize)
+                    : lastDeviationNewText;
+            return lastDeviation;
         } else {
-            if (newText.length >= oldText.length) {
-                return newString.substring(firstDeviation, lastDeviation);
-            } else {
-                return oldString.substring(firstDeviation, lastDeviation);
-            }
+            isOffsetWithinArrayBounds = ((lastDeviationOldText < firstDeviation));
+            lastDeviationOldText = (isOffsetWithinArrayBounds)
+                    ? (lastDeviationNewText + potentialOffsetSize)
+                    : lastDeviationNewText;
+            return lastDeviation;
         }
 
     }
 
     /**
-     * Calculates offset and, if necessary, adjusts <code>lastDeviation</code> values for
-     * {@link #lastDeviationOldText} and {@link #lastDeviationNewText} accordingly.
+     * Populates the {@link #deviationType} field with one of three constant values,
+     * representing an ADDITION of text, from old to new, with no text from old replaced. DELETION,
+     * showing a removal of text from old to new, in which no text was replaced, and a REPLACEMENT,
+     * in which text has been either added or removed from old to new, and overwritten the old text
+     * in part or in its entirety. For example:
      *
-     * This method checks for situations where {@link #findLastDeviation(char[], char[])} or
-     * {@link #findLastDeviationInContext(char[], char[])} could return false values, and makes
-     * relevant adjustments.
+     * <b>ADDITION:</b> The difference between "one" and "one two".
      *
-     * Unlike {@link #offsetCheckResult(char[], char[])}, this method will assign values to
-     * {@link #lastDeviationOldText} and {@link #lastDeviationNewText}
+     * <b>DELETION:</b> The difference between "one two" and "one".
      *
-     * @param oldText Old Text
-     * @param newText New Text
+     * <b>REPLACEMENT:</b> The difference between "one" and "two".
      *
-     * @see #offsetCheckResult(char[], char[])
+     * @see #getDeviationType()
      */
-    private void offsetCheckResultInContext(char[] oldText, char[] newText) {
+    private void findDeviationType() {
 
-        if (oldText.length == newText.length) {
-            return;
-        }
-
-        int deviationOffset;
-        int offsetValue = subtractLongestFromShortest(oldText, newText);
-
-        if (oldText.length > newText.length) {
-            deviationOffset = findOffsetSizeInContext(true, oldText, newText);
-            lastDeviationOldText = deviationOffset;
-            lastDeviationNewText = deviationOffset - offsetValue;
-        } else if (newText.length > oldText.length) {
-            deviationOffset = findOffsetSizeInContext(false, newText, oldText);
-            lastDeviationNewText = deviationOffset;
-            lastDeviationOldText = deviationOffset - offsetValue;
-        }
-    }
-
-    private int findOffsetSizeInContext(boolean oldTextLarger, char[] largeText, char[] smallText) {
-
-        int potentialOffsetSize = largeText.length - smallText.length;
-        int maxCalculatedValue;
-        int adjustedReverseDeviation;
-        boolean condition;
-
-        condition = ((tempReverseDeviation + potentialOffsetSize) < largeText.length);
-
-        maxCalculatedValue = (condition) ? (tempReverseDeviation + potentialOffsetSize) : (largeText.length);
-
-        adjustedReverseDeviation = (tempReverseDeviation < potentialOffsetSize) ? (potentialOffsetSize) : tempReverseDeviation;
-
-        for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
-            if (largeText[i] == largeText[i - adjustedReverseDeviation]) {
-                return largeText.length - (i - adjustedReverseDeviation);
-            }
-        }
-        condition = ((lastDeviation - potentialOffsetSize )< firstDeviation) ||
-                ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
-        return (condition) ? (lastDeviation + potentialOffsetSize) : lastDeviation;
-    }
-
-    private void findDeviations(char[] oldText, char[] newText) {
-
-        findFirstDeviation(oldText, newText);
-        findLastDeviation(oldText, newText);
-    }
-
-    /**
-     * @see #findAlteredText(char[], char[])
-     */
-    public String findAlteredText(char[] oldText, char[] newText){
-        return findAlteredText(new String(oldText), new String(newText));
-    }
-
-    /**
-     * Calculates first and last deviation points between <code>oldText</code> and <code>newText</code>,
-     * accounts for offsets, assigns an {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType}
-     * to {@link #alterationType} and returns a <code>subString</code> between the two deviation points.
-     *
-     * <br><br>Unlike {@link #findAlteredTextInContext(char[], char[])}, this method will always
-     * return a <code>subString</code> of the larger of the two argumens.
-     *
-     * @param oldText Old Text to compare.
-     * @param newText New Text to compare.
-     * @return <code>subString</code> of the larger of the two arguments, between {@link #firstDeviation} and {@link #lastDeviation}
-     */
-    public String findAlteredText(String oldText, String newText){
-
-        if (oldText.equals(newText)) {
-            return null;
-        }
-
-        char[] oldCharArr = oldText.toCharArray();
-        char[] newCharArr = newText.toCharArray();
-
-        findDeviations(oldCharArr, newCharArr);
-
-        offsetCheckResult(oldCharArr, newCharArr);
-
-        alterationType = findAlterationType(oldText, newText);
-
-        if (newCharArr.length >= oldCharArr.length) {
-            return newText.substring(firstDeviation, lastDeviation);
+        if (isNewTextLonger) {
+            deviationType = (isArrayEqualWithOmission(mNewText, mOldText, firstDeviation, lastDeviationNewText))
+                    ? ADDITION
+                    : REPLACEMENT;
+        } else if(isTextLengthEqual) {
+            deviationType = REPLACEMENT;
         } else {
-            return oldText.substring(firstDeviation, lastDeviation);
-        }
-    }
-
-    private void offsetCheckResult(char[] oldText, char[] newText) {
-
-        if (oldText.length == newText.length) {
-            return;
-        }
-
-        if (oldText.length > newText.length) {
-            lastDeviation = findOffsetSize(oldText, newText);
-        } else if (newText.length > oldText.length) {
-            lastDeviation = findOffsetSize(newText, oldText);
+            deviationType = (isArrayEqualWithOmission(mNewText, mOldText, firstDeviation, lastDeviationOldText))
+                    ? DELETION
+                    : REPLACEMENT;
         }
 
     }
 
-    private int findOffsetSize(char[] largeText, char[] smallText) {
+    private static int findShortestLength(char[] arrOne, char[] arrTwo) {
 
-        int potentialOffsetSize = largeText.length - smallText.length;
-        int maxCalculatedValue;
-        int adjustedReverseDeviation;
-        boolean condition;
+        return Math.min(arrOne.length, arrTwo.length);
 
-        condition = ((tempReverseDeviation + potentialOffsetSize) < largeText.length);
-        maxCalculatedValue = (condition) ? (tempReverseDeviation + potentialOffsetSize) : (largeText.length);
-
-        adjustedReverseDeviation = (tempReverseDeviation < potentialOffsetSize) ? (potentialOffsetSize) : tempReverseDeviation;
-
-        for (int i = (adjustedReverseDeviation); i < maxCalculatedValue; i++) {
-            if (largeText[i] == largeText[i - potentialOffsetSize]) {
-                int returnValue = largeText.length - (i - potentialOffsetSize);
-                if ((returnValue - firstDeviation) < potentialOffsetSize) {
-                    return firstDeviation + potentialOffsetSize;
-                } else {
-                    return returnValue;
-                }
-
-            }
-        }
-
-        condition = (lastDeviation < firstDeviation) ||
-                ((largeText.length == smallText.length) && (lastDeviation <= firstDeviation));
-
-        return (condition) ? (lastDeviation + potentialOffsetSize) : lastDeviation;
     }
 
+    private static int findLongestLength(char[] arrOne, char[] arrTwo) {
 
-    private int findLongestLength(char[] oldText, char[] newText) {
+        return Math.max(arrOne.length, arrTwo.length);
 
-        int oldLength, newLength;
-
-        oldLength = oldText.length;
-        newLength = newText.length;
-
-        return (oldLength <= newLength) ? newLength : oldLength;
     }
 
-    private int subtractLongestFromShortest(char[] oldText, char[] newText) {
-        if (oldText.length > newText.length) {
-            return oldText.length - newText.length;
-        } else if (newText.length > oldText.length) {
-            return newText.length - oldText.length;
-        } else {
-            return 0;
-        }
-    }
+    private static char[] reverseCharArray(char[] input){
 
-    private AlterationType findAlterationType(char[] oldText, char[] newText){
-
-        int offsetValue = subtractLongestFromShortest(oldText, newText);
-        boolean replacementCheck = ((lastDeviation - offsetValue) - firstDeviation != 0);
-
-        if (oldText.length > newText.length) {
-            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.DELETION;
-        } else if (newText.length > oldText.length) {
-            return replacementCheck ? AlterationType.REPLACEMENT : AlterationType.ADDITION;
-        } else if ((newText.length == oldText.length) && !Arrays.equals(oldText, newText)) {
-            return AlterationType.REPLACEMENT;
-        } else {
-            return AlterationType.UNCHANGED;
-        }
-    }
-
-    private AlterationType findAlterationType(String oldString, String newString){
-        return findAlterationType(oldString.toCharArray(), newString.toCharArray());
-    }
-
-    /**
-     * Complements {@link #findAlteredText(String, String)} by calculating the <code>subString</code>
-     * for the smaller of <code>oldText.length</code> and <code>newText.length</code>.
-     *
-     * <br><br>Requires {@link #findAlteredText(String, String)} to be called first.
-     *
-     * <br><br>Requires an {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} argument,
-     * else method will return <code>null</code>
-     *
-     * @param altType Must be of {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} <code>REPLACEMENT</code>
-     * @param oldText Old Text to compare.
-     * @param newText New Text to compare.
-     *
-     * @return <code>subString</code> of the smaller of <code>oldText</code> or <code>newText</code>
-     * between {@link #firstDeviation} and {@link #lastDeviation} if
-     * {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} is <code>REPLACEMENT</code>.
-     * If {@link com.werdpressed.partisan.rundo.SubtractStrings.AlterationType} is not
-     * <code>REPLACEMENT</code>, this method will return <code>null</code>
-     */
-    public String findReplacedText(AlterationType altType, char[] oldText, char[] newText) {
-
-        int offsetValue = subtractLongestFromShortest(oldText, newText);
-        String returnText = (oldText.length > newText.length) ? new String(newText) : new String(oldText);
-
-        if (altType == AlterationType.REPLACEMENT) {
-            return returnText.substring(firstDeviation, (lastDeviation - offsetValue));
-        }
-        return null;
-    }
-
-    /**
-     * @see #findReplacedText(AlterationType, char[], char[])
-     */
-    public String findReplacedText(AlterationType altType, String oldTextString, String newTextString) {
-        return findReplacedText(altType, oldTextString.toCharArray(), newTextString.toCharArray());
-    }
-
-    private int findShortestLength(char[] oldText, char[] newText) {
-
-        int oldLength, newLength;
-
-        oldLength = oldText.length;
-        newLength = newText.length;
-
-        return (oldLength <= newLength) ? oldLength : newLength;
-    }
-
-    private char[] reverseText(char[] inputText) {
-
+        char[] output = input.clone();
+        char temp;
         int index = 0;
 
-        for (int i = inputText.length - 1; i >= inputText.length / 2; i--) {
-            char temp = inputText[i];
-            inputText[i] = inputText[index];
-            inputText[index] = temp;
+        for (int i = (output.length - 1); i >= (output.length/2); i--) {
+            temp = input[i];
+            output[i] = input[index];
+            output[index] = temp;
             index++;
         }
-        return inputText;
-    }
 
-    private void sendLogInfo(String message) {
-        Log.e(getClass().getSimpleName(), message);
+        return output;
     }
 
     /**
-     * Returns {@link #firstDeviation} value
-     * @return {@link #firstDeviation}
+     * Determines whether the contents of two arrays are equal, after a section from one array is
+     * removed.
+     *
+     * Used to determine whether text has been replaced, or added to/deleted from.
+     *
+     * @param arrOne First array
+     * @param arrTwo Second array
+     * @param omissionStart Start index of section to remove from the longer or arrOne and arrTwo.
+     * @param omissionEnd End index of section to remove.
+     * @return True if both arrOne and arrTwo are equal after section specified in omissionStart
+     * and omissionEnd is removed from the longer of the two.
+     *
+     * @see #findDeviationType()
+     */
+    private static boolean isArrayEqualWithOmission(char[] arrOne, char[] arrTwo, int omissionStart, int omissionEnd) {
+
+        final boolean isArrOneLonger = (arrOne.length > arrTwo.length);
+
+        final char[] arrOneCopy = (isArrOneLonger)
+                ? omitCharArrayEntriesAtIndexes(arrOne.clone(), omissionStart, omissionEnd)
+                : arrOne.clone();
+
+        final char[] arrTwoCopy = (!isArrOneLonger)
+                ? omitCharArrayEntriesAtIndexes(arrTwo.clone(), omissionStart, omissionEnd)
+                : arrTwo.clone();
+
+        return Arrays.equals(arrOneCopy, arrTwoCopy);
+
+    }
+
+    /**
+     * Removes the section between the index positions at omissionStart and omissionEnd from arr.
+     * @param arr Input array
+     * @param omissionStart Start index of section to remove.
+     * @param omissionEnd End index of section to remove.
+     * @return The array arr, less the section between omissionStart and omissionEnd.
+     */
+    private static char[] omitCharArrayEntriesAtIndexes(char[] arr, int omissionStart, int omissionEnd) {
+
+        final int omissionLength = omissionEnd - omissionStart;
+        char[] output = new char[arr.length - omissionLength];
+
+        for (int i = 0; i < arr.length; i++) {
+            if (i < omissionStart) {
+                output[i] = arr[i];
+            } else if (i >= omissionEnd) {
+                output[i - omissionLength] = arr[i];
+            }
+
+        }
+
+        return output;
+
+    }
+
+    /**
+     *
+     * @return int[] containing first and last deviation points
+     */
+    public int[] getDeviations() {
+        return new int[] { firstDeviation, lastDeviation };
+    }
+
+    public int[] getDeviationsNewText() {
+        return new int[] { firstDeviation, lastDeviationNewText };
+    }
+
+    public int[] getDeviationsOldText() {
+        return new int[] { firstDeviation, lastDeviationOldText };
+    }
+
+    /**
+     *
+     * @return First deviation
      */
     public int getFirstDeviation() {
-        return firstDeviation;
+        return  firstDeviation;
     }
 
     /**
-     * Returns {@link #lastDeviation} value
-     * @return {@link #lastDeviation} This marks the last point of deviation
-     *                      at the end of the longer of the two compared <code>String</code>s
+     *
+     * @return Last deviation, after adjustments with {@link #findLastDeviationOffset()}
      */
     public int getLastDeviation() {
-        return lastDeviation;
+        return  lastDeviation;
     }
 
-    /**
-     * Set {@link #firstDeviation} value.
-     * @param firstDeviation New <code>firstDeviation</code> value.
-     */
-    public void setFirstDeviation(int firstDeviation) {
-        this.firstDeviation = firstDeviation;
+    public int getLastDeviationOldText() {
+        return lastDeviationOldText;
     }
-    /**
-     * Set {@link #lastDeviation} value.
-     * @param lastDeviation New <code>lastDeviation</code> value. This marks the last point of deviation
-     *                      at the end of the longer of the two compared <code>String</code>s
-     */
-    public void setLastDeviation(int lastDeviation) {
-        this.lastDeviation = lastDeviation;
-    }
-    /**
-     * Set {@link #lastDeviationOldText} value.
-     * @param lastDeviationOldText New <code>lastDeviationOldText</code> value. This marks the last
-     *                             point of deviation at the end of <code>oldText</code>
-     */
-    public void setLastDeviationOldText(int lastDeviationOldText) {
-        this.lastDeviationOldText = lastDeviationOldText;
-    }
-    /**
-     * Set {@link #lastDeviationNewText} value.
-     * @param lastDeviationNewText New <code>lastDeviationNewText</code> value.This marks the last
-     *                             point of deviation at the end of <code>newText</code>
-     */
-    public void setLastDeviationNewText(int lastDeviationNewText) {
-        this.lastDeviationNewText = lastDeviationNewText;
-    }
-    /**
-     * Get {@link #lastDeviationNewText} value.
-     * @return <code>lastDeviationNewText</code> value. This marks the last
-     *                             point of deviation at the end of <code>newText</code>
-     */
+
     public int getLastDeviationNewText() {
         return lastDeviationNewText;
     }
 
     /**
-     * Get {@link #lastDeviationNewText} value.
-     * @return <code>lastDeviationOldText</code> value. This marks the last
-     *                             point of deviation at the end of <code>oldText</code>
+     *
+     * @return Deviation type, in the form of an int value. For a String representation, use
+     * {@link #getDeviationTypeAsString()}
      */
-    public int getLastDeviationOldText() {
-        return lastDeviationOldText;
+    public int getDeviationType() {
+        return deviationType;
     }
 
     /**
-     * Get {@link #alterationType} value.
-     * @return <code>lastAlterationType</code> value. Specifies whether the new text replaced,
-     * added to or deleted from the old text during the last comparison.
+     *
+     * @return Deviation type as String representing whether text has been added, deleted, replaced
+     * or unchanged between old and new.
      */
-    public AlterationType getAlterationType() {
-        return alterationType;
+    public String getDeviationTypeAsString() {
+
+        switch (deviationType) {
+            case ADDITION:
+                return "Addition";
+            case DELETION:
+                return "Deletion";
+            case REPLACEMENT:
+                return "Replacement";
+            case UNCHANGED:
+                return "Unchanged";
+        }
+
+        throw new RuntimeException("Incorrect deviationType");
+
+    }
+
+    /**
+     * Converts {@code int} value returned by {@link #getDeviationType()} to {@link String}
+     * representation.
+     * @param deviationType
+     * @return String representation of argument if argument is valid. Otherwise, {@code null}
+     */
+    public static final String valueOfDeviation(int deviationType) {
+
+        switch (deviationType) {
+            case ADDITION:
+                return "Addition";
+            case DELETION:
+                return "Deletion";
+            case REPLACEMENT:
+                return "Replacement";
+            case UNCHANGED:
+                return "Unchanged";
+            default:
+                return null;
+        }
+
+    }
+
+    /**
+     *
+     * @return If text has been added or replaced, returns a substring of the new text that has
+     * been altered in respect to old text.
+     */
+    public String getAlteredText() {
+
+        switch (deviationType) {
+            case ADDITION:
+            case REPLACEMENT:
+                return new String(mNewText).substring(firstDeviation, lastDeviationNewText);
+        }
+
+        return "";
+    }
+
+    /**
+     *
+     * @return If text has been deleted or replaced, returns a substring of the old text that has
+     * been removed or overwritten.
+     */
+    public String getReplacedText() {
+
+        switch (deviationType) {
+            case DELETION:
+            case REPLACEMENT:
+                return new String(mOldText).substring(firstDeviation, lastDeviationOldText);
+        }
+
+        return "";
+
     }
 }

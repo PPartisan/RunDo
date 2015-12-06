@@ -1,11 +1,11 @@
 <resources>
     <string name="rundo_app_name">RunDo</string>
 
-    <!-- RunDo -->
+    <!-- RunDoOld -->
     <string name="rundo_rd_undo_array_empty">Undo Queue is Empty</string>
     <string name="rundo_rd_redo_array_empty">Redo Queue is Empty</string>
     <string name="rundo_rd_constructor_error_class_cast"> must be an instance of, or inherit from, EditText</string>
 
-    <!-- SubtractStrings -->
+    <!-- SubtractStringsOld -->
     <string name="rundo_ss_illegal_argument_exception"> must be AlterationType REPLACEMENT</string>
 </resources>

@@ -9,7 +9,7 @@ import java.util.ArrayDeque;
  *
  * @author Tom Calver
  */
-public class CustomArrayDeque<T> extends ArrayDeque<T> {
+public final class CustomArrayDeque<T> extends ArrayDeque<T> {
 
     /**
      * Max capacity for <code>ArrayDeque</code>.
