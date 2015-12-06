@@ -111,7 +111,7 @@ Use [`clearAllQueues()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpresse
 
 #### Callbacks
 
-Implement `RunDo.Callbacks` to be notified whenever [`undo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#undo()) or [`redo(http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#redo())`]() is called: 
+Implement [`RunDo.Callbacks`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.Callbacks.html) to be notified whenever [`undo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#undo()) or [`redo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#redo()) is called: 
 
     @Override
     public void undoCalled() {
