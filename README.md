@@ -105,6 +105,14 @@ For example:
 
     }
     
+#### Tweaking Parameters
+
+There are two ways to customise `RunDo` objects; [`setQueueSize(int size)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#setQueueSize(int)) and [`setTimerLength(long lengthInMillis)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#setTimerLength(long)).
+
+`setQueueSize()` adjusts the size of the undo and redo queues to hold the specified number of entries, before entries from the opposite end of the queue begin to be removed. The default size is `10`. Calling this method will clear all current entries from both queues.
+
+`setTimerLength()` adjust the countdown between the user's last text entry and the period at which any altered text is saved to the undo queue. The timer is reset if further text is entered during this period. The default value is `2000` milliseconds (2 seconds).
+    
 #### Clearing Queues
 
 Use [`clearAllQueues()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#clearAllQueues()) to remove all elements from both undo and redo queues.
