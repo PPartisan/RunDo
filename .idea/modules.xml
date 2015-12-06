@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/UndoRedo.iml" filepath="$PROJECT_DIR$/UndoRedo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RunDo.iml" filepath="$PROJECT_DIR$/RunDo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/rundo/rundo.iml" filepath="$PROJECT_DIR$/rundo/rundo.iml" />
     </modules>
