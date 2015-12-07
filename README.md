@@ -1,18 +1,13 @@
 # RunDo
 ![Banner Image](http://oi62.tinypic.com/s49utw.jpg)
 
-__RunDo__ allows developers to add Undo/Redo functionality to editable text fields in Android.  
-
-This library aims to counteract some of the performance problems that can occur when working with large text blocks in Android in the following ways:
-* Text is only saved to memory when the user stops typing. The bulk of code is only run when required, rather than updating with every key stroke.
-* Only text that has changed between saves is committed to memory, rather than saving all text present in the widget.
-* Only short, altered sections of text are inserted whenever an `undo()` or `redo()` method is called, and text fields are updated intelligently based on whether old text is to be added to, deleted from or replaced. This can drastically increase performance on older hardware, as calling `setText()` with large volumes of text can cause UI freezes.
+__RunDo__ adds Undo/Redo functionality to `EditText` fields in Android. 
 
 ## Releases
 
 #### [View Releases](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
 
-Current version is `v0.2.3`
+Current version is `v1.0.0`
 
 JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/JavaDoc/index.html "JavaDoc")
 
@@ -25,12 +20,12 @@ JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/Java
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:0.2.3'
+        compile 'com.werdpressed.partisan:rundo:1.0.0'
     }
     
 ##### maven
 
-If you experience issues, add the following in addition to the dependency above:
+In addition to the dependency above, add:
 
     repositories {
         maven {
@@ -38,34 +33,58 @@ If you experience issues, add the following in addition to the dependency above:
         }
     }
 
-#### Instantiation
+#### Usage
 
-`RunDo` extends `android.app.Fragment`:
+Recommended usage is via the following method:
 
-    RunDo mRunDo;
-    //...
-    mRunDo = (RunDo) getFragmentManager().findFragmentByTag(RunDo.TAG);
+    RunDo.Factory.getInstance(FragmentManager fm, RunDo.TextLink textLink);
+    
+To be used in the following way (as an example):
 
-    if (mRunDo == null) {
-       testEditText = (EditText) findViewById(R.id.test_edit_text);
-       mRunDo = RunDoMixer.newInstance(testEditText.getId());
-       getFragmentManager()
-           .beginTransaction()
-           .add(mRunDo, RunDo.TAG)
-           .commit();
+    public class MyActivity extends Activity implements Rundo.TextLink, View.OnClickListener {
+    
+        private RunDo mRunDo;
+        private EditText mEditText;
+        private Button mButton;
+        
+        //...
+    
+        mRunDo = RunDo.Factory.getInstance(getFragmentManager(), this);
+        mButton.setOnClickListener(this);
+        
+        //...
+        
+        @Override
+        public void onClick(View v) {
+            int id = v.getId();
+
+            switch (id) {
+                case R.id.undo_button:
+                    mRunDo.undo();
+                    break;
+                case R.id.redo_button:
+                    mRunDo.redo();
+                    break;
+            }
+
+        }
+
+        @Override
+        public EditText getEditText() {
+            return mEditText;
+        }
+        
     }
     
-`newInstance(int editTextResourceId)` is shorthand for `newInstance(editTextResourceId, 0, 0)`.
+_See the [**sample app**](https://github.com/PPartisan/RunDo/blob/master/app/src/main/java/com/werdpressed/partisan/undoredo/MainActivity.java) for a complete example_
 
-The `newInstance()` method takes the `id` of either an `EditText` object, or the `id` of an object of a class that inherits from `EditText`, as its sole argument. It is possible to pass `0` and later assign something suitable with `setEditText(Object object)`.
+The `getInstance()` method requires a `FragmentManager` (whether [`android.app.FragmentManager`](http://developer.android.com/reference/android/app/FragmentManager.html) or [`android.suppoer.v4.app.FragmentManager`](http://developer.android.com/reference/android/support/v4/app/FragmentManager.html)) and [`RunDo.TextLink`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.TextLink.html) argument.
 
-There are two additional, optional, parameters if using `newInstance(int editTextResourceId, int countDown, int arraySize)`. The first sets the countdown timer, in milliseconds, and determines how long  the system will wait from the last keypress before saving any altered text to the Undo queue. A value of less than one will revert to the default value of two seconds. The final parameter specifies the maximum size of the Undo and Redo queues before old entries are deleted. Again, a value of less than one will use the default size of ten.
-
-JavaDoc entry for [`newInstance(int)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#newInstance(int) "newInstance(int)") and [`newInstance(int, int, int)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#newInstance(int,%20int,%20int) "newInstance(int, int, int)")
+`RunDo` implementations extend either [`android.app.Fragment`](http://developer.android.com/reference/android/app/Fragment.html) or [`android.support.v4.app.Fragment`](http://developer.android.com/reference/android/support/v4/app/Fragment.html). 
 
 #### Calling Undo/Redo
 
-To call Undo or Redo, use the `undo()` and `redo()` methods on the `RunDo` object:
+To call Undo or Redo, use the `undo()` and `redo()` methods:
 
     mRunDo.undo();
     mRunDo.redo();
@@ -86,30 +105,21 @@ For example:
 
     }
     
-#### Visual Feedback
+#### Tweaking Parameters
 
-![Undo Empty Feedback](http://oi59.tinypic.com/2v9u81e.jpg)
+There are two ways to customise `RunDo` objects; [`setQueueSize(int size)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#setQueueSize(int)) and [`setTimerLength(long lengthInMillis)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#setTimerLength(long)).
 
-A `Toast` notification will appear to let the user know that they have reached the end of the Undo/Redo queue. This will either occur if they are at one extreme end of a full queue, or if the next entry is `null`.
+`setQueueSize()` adjusts the size of the undo and redo queues to hold the specified number of entries, before entries from the opposite end of the queue begin to be removed. The default size is `10`. Calling this method will clear all current entries from both queues.
 
-To deactivate this feature, or change the message, use `setUndoQueueEmptyMessage(boolean condition, String message)` and `setRedoQueueEmptyMessage(coolean condition, String message)`. Setting `condition` to `false` will deactivate these notifications entirely, whilst any non-`null` text in the second argument will override the default message.
-
-#### Hardware Keyboard Shortcuts
-
-By default, the follwing shortcuts are enabled for hardware keyboard users:
-
-* `Ctrl + Z` for Undo
-* `Ctrl + Y` for Redo
-
-Deactivate with `setKeyboardShortcuts(false)`.
-
+`setTimerLength()` adjust the countdown between the user's last text entry and the period at which any altered text is saved to the undo queue. The timer is reset if further text is entered during this period. The default value is `2000` milliseconds (2 seconds).
+    
 #### Clearing Queues
 
-To clear all Undo and Redo queues, use `clearAllQueues()`
+Use [`clearAllQueues()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#clearAllQueues()) to remove all elements from both undo and redo queues.
 
 #### Callbacks
 
-To receive a callback whenever `undo()` or `redo()` is called, have your class implement `RunDoMixer.UndoRedoCallbacks`. This will provide the following methods:
+Implement [`RunDo.Callbacks`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.Callbacks.html) to be notified whenever [`undo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#undo()) or [`redo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#redo()) is called: 
 
     @Override
     public void undoCalled() {
@@ -119,31 +129,3 @@ To receive a callback whenever `undo()` or `redo()` is called, have your class i
     public void redoCalled() {
     }
     
-#### Error Handling
-
-The `undo()` and `redo()` methods should not throw any errors, but are nonetheless enclosed in `try/catch` blocks in case `IndexOutOfBoundsException` occurs when calculating deviation points or setting text.
-
-By default, a `Toast` notification will appear with the exception's `toString()` result as its content, the stack trace printed to `LogCat` and all Undo and Redo queues cleared. To disable this behaviour, use `setAutoErrorHandling(false)`.
-
-To create your own error handling, implement `RunDo.ErrorHandlingCallback` and use the resulting methods:
-
-    @Override
-    public void undoError(IndexOutOfBoundsException e) {
-        //Error handling code
-    }
-
-    @Override
-    public void redoError(IndexOutOfBoundsException e) {
-        //Error handling code
-    }
-
-It is strongly recommended that `clearAllQueues()` is called if auto error handling is disabled, as it is likely the data stored in both queues is invalid.
-
-## Other Extras...
-
-__RunDo__ relies heavily on a custom `String` comparison class called `SubtractStrings`. `SubtractStrings` compares two `String` objects, and returns data regarding:
-* The points where the two strings first and last deviate from each other.
-* The `subString` from both the old text and new text, if one replaced a section of text in the other.
-* Options to return values in respect to the larger of the two strings, or in respect to the "new" text in relation to the "old" text.
-
-This class may be useful in its own right for some projects.
