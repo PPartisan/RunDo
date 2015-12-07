@@ -10,8 +10,8 @@ ext {
 
     libraryDescription = 'Add Undo/Redo functionality to Android text fields'
 
-    siteUrl = 'https://github.com/PPartisan/RunDoOld'
-    gitUrl = 'https://github.com/PPartisan/RunDoOld.git'
+    siteUrl = 'https://github.com/PPartisan/RunDo'
+    gitUrl = 'https://github.com/PPartisan/RunDo.git'
 
     libraryVersion = '1.0.0'
 
