@@ -203,6 +203,7 @@ public class RunDoSupport extends Fragment implements RunDo {
 
         if (isRunning) {
             restartCountdownRunnableImmediately();
+            return;
         }
 
         trackingState = TRACKING_STARTED;
