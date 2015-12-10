@@ -1,9 +1,12 @@
 package com.werdpressed.partisan.rundo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Arrays;
 
 //Immutable
-final class SubtractStrings {
+final class SubtractStrings implements Parcelable {
 
     private static final String TAG = "SubtractStrings";
 
@@ -38,6 +41,35 @@ final class SubtractStrings {
 
         findDeviations();
     }
+
+    protected SubtractStrings(Parcel in) {
+        mOldText = in.createCharArray();
+        mNewText = in.createCharArray();
+        mOldTextReversed = in.createCharArray();
+        mNewTextReversed = in.createCharArray();
+        firstDeviation = in.readInt();
+        lastDeviation = in.readInt();
+        tempReverseDeviation = in.readInt();
+        lastDeviationOldText = in.readInt();
+        lastDeviationNewText = in.readInt();
+        deviationType = in.readInt();
+        shortestLength = in.readInt();
+        longestLength = in.readInt();
+        isNewTextLonger = in.readByte() != 0;
+        isTextLengthEqual = in.readByte() != 0;
+    }
+
+    public static final Creator<SubtractStrings> CREATOR = new Creator<SubtractStrings>() {
+        @Override
+        public SubtractStrings createFromParcel(Parcel in) {
+            return new SubtractStrings(in);
+        }
+
+        @Override
+        public SubtractStrings[] newArray(int size) {
+            return new SubtractStrings[size];
+        }
+    };
 
     private void findDeviations() {
         //check equality. If equal, exit early
@@ -207,7 +239,7 @@ final class SubtractStrings {
         for (int i = reverseDeviation; i < maxValue; i++) {
 
             if (longestArray[i] == longestArray[i - reverseDeviation]) {
-                return (longestLength - (i - potentialOffsetSize));
+                return (longestLength - (i - reverseDeviation));
             }
 
         }
@@ -468,5 +500,28 @@ final class SubtractStrings {
 
         return "";
 
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeCharArray(mOldText);
+        dest.writeCharArray(mNewText);
+        dest.writeCharArray(mOldTextReversed);
+        dest.writeCharArray(mNewTextReversed);
+        dest.writeInt(firstDeviation);
+        dest.writeInt(lastDeviation);
+        dest.writeInt(tempReverseDeviation);
+        dest.writeInt(lastDeviationOldText);
+        dest.writeInt(lastDeviationNewText);
+        dest.writeInt(deviationType);
+        dest.writeInt(shortestLength);
+        dest.writeInt(longestLength);
+        dest.writeByte((byte) (isNewTextLonger ? 1 : 0));
+        dest.writeByte((byte) (isTextLengthEqual ? 1 : 0));
     }
 }

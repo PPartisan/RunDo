@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
-import android.util.Log;
 
 /**
  * Implementation of {@link RunDo} which extends {@link Fragment}. It is best to create an
@@ -66,7 +65,6 @@ public class RunDoSupport extends Fragment implements RunDo {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -74,14 +72,11 @@ public class RunDoSupport extends Fragment implements RunDo {
         mTextLink.getEditText().addTextChangedListener(this);
 
         if (savedInstanceState != null) {
-            mUndoQueue =  (CustomArrayDeque<SubtractStrings>)
-                    savedInstanceState.getSerializable(UNDO_TAG);
-            mRedoQueue = (CustomArrayDeque<SubtractStrings>)
-                    savedInstanceState.getSerializable(REDO_TAG);
+            mUndoQueue = savedInstanceState.getParcelable(UNDO_TAG);
+            mRedoQueue = savedInstanceState.getParcelable(REDO_TAG);
 
             trackingState = TRACKING_STARTED;
         }
-
 
     }
 
@@ -89,8 +84,8 @@ public class RunDoSupport extends Fragment implements RunDo {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable(UNDO_TAG, mUndoQueue);
-        outState.putSerializable(REDO_TAG, mRedoQueue);
+        outState.putParcelable(UNDO_TAG, mUndoQueue);
+        outState.putParcelable(REDO_TAG, mRedoQueue);
 
     }
 
@@ -209,7 +204,7 @@ public class RunDoSupport extends Fragment implements RunDo {
         trackingState = TRACKING_STARTED;
 
         if (mUndoQueue.peek() == null) {
-            Log.e(TAG, "Undo Queue Empty");
+            //Log.e(TAG, "Undo Queue Empty");
             return;
         }
 
@@ -232,7 +227,7 @@ public class RunDoSupport extends Fragment implements RunDo {
                 case SubtractStrings.REPLACEMENT:
                     mTextLink.getEditText().getText().replace(
                             temp.getFirstDeviation(),
-                            temp.getLastDeviation(),
+                            temp.getLastDeviationNewText(),
                             temp.getReplacedText());
                     break;
                 case SubtractStrings.UNCHANGED:
@@ -265,7 +260,7 @@ public class RunDoSupport extends Fragment implements RunDo {
         trackingState = TRACKING_STARTED;
 
         if (mRedoQueue.peek() == null) {
-            Log.e(TAG, "Redo Queue Empty");
+            //Log.e(TAG, "Redo Queue Empty");
             return;
         }
 

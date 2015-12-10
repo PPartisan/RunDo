@@ -1,5 +1,8 @@
 package com.werdpressed.partisan.rundo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayDeque;
 
 /**
@@ -9,7 +12,7 @@ import java.util.ArrayDeque;
  *
  * @author Tom Calver
  */
-public final class CustomArrayDeque<T> extends ArrayDeque<T> {
+public final class CustomArrayDeque<T> extends ArrayDeque<T> implements Parcelable {
 
     /**
      * Max capacity for <code>ArrayDeque</code>.
@@ -25,6 +28,22 @@ public final class CustomArrayDeque<T> extends ArrayDeque<T> {
         super(maxSize);
         this.maxSize = maxSize;
     }
+
+    protected CustomArrayDeque(Parcel in) {
+        maxSize = in.readInt();
+    }
+
+    public static final Creator<CustomArrayDeque> CREATOR = new Creator<CustomArrayDeque>() {
+        @Override
+        public CustomArrayDeque createFromParcel(Parcel in) {
+            return new CustomArrayDeque(in);
+        }
+
+        @Override
+        public CustomArrayDeque[] newArray(int size) {
+            return new CustomArrayDeque[size];
+        }
+    };
 
     /**
      * Inserts the specified element at the front of the deque
@@ -48,5 +67,15 @@ public final class CustomArrayDeque<T> extends ArrayDeque<T> {
             removeFirst();
         }
         super.addLast(t);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(maxSize);
     }
 }
