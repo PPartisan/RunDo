@@ -7,7 +7,7 @@ __RunDo__ adds Undo/Redo functionality to `EditText` fields in Android.
 
 #### [View Releases](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
 
-Current version is `v1.0.0`
+Current version is `v1.0.1`
 
 JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/JavaDoc/index.html "JavaDoc")
 
