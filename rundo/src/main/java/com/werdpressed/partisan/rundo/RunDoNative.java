@@ -104,6 +104,9 @@ public class RunDoNative extends Fragment implements RunDo {
         if (mOldText == null) mOldText = mTextLink.getEditText().getText().toString();
 
         if (trackingState == TRACKING_ENDED) {
+            //Redo Queue should only be required as response to Undo calls. Otherwise clear.
+            mRedoQueue.clear();
+
             startCountdownRunnable();
             trackingState = TRACKING_CURRENT;
         }
