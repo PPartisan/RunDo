@@ -12,7 +12,7 @@ import java.util.ArrayDeque;
  *
  * @author Tom Calver
  */
-public final class CustomArrayDeque<T> extends ArrayDeque<T> implements Parcelable {
+public final class FixedSizeArrayDeque<T> extends ArrayDeque<T> implements Parcelable {
 
     /**
      * Max capacity for <code>ArrayDeque</code>.
@@ -24,24 +24,24 @@ public final class CustomArrayDeque<T> extends ArrayDeque<T> implements Parcelab
      *
      * @param maxSize Max capacity for <code>ArrayDeque</code>.
      */
-    public CustomArrayDeque(int maxSize) {
+    public FixedSizeArrayDeque(int maxSize) {
         super(maxSize);
         this.maxSize = maxSize;
     }
 
-    protected CustomArrayDeque(Parcel in) {
+    protected FixedSizeArrayDeque(Parcel in) {
         maxSize = in.readInt();
     }
 
-    public static final Creator<CustomArrayDeque> CREATOR = new Creator<CustomArrayDeque>() {
+    public static final Creator<FixedSizeArrayDeque> CREATOR = new Creator<FixedSizeArrayDeque>() {
         @Override
-        public CustomArrayDeque createFromParcel(Parcel in) {
-            return new CustomArrayDeque(in);
+        public FixedSizeArrayDeque createFromParcel(Parcel in) {
+            return new FixedSizeArrayDeque(in);
         }
 
         @Override
-        public CustomArrayDeque[] newArray(int size) {
-            return new CustomArrayDeque[size];
+        public FixedSizeArrayDeque[] newArray(int size) {
+            return new FixedSizeArrayDeque[size];
         }
     };
 

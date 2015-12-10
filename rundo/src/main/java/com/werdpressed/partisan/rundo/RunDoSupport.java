@@ -25,7 +25,7 @@ public class RunDoSupport extends Fragment implements RunDo {
     private long countdownTimerLength;
     private int queueSize;
 
-    private CustomArrayDeque<SubtractStrings> mUndoQueue, mRedoQueue;
+    private FixedSizeArrayDeque<SubtractStrings> mUndoQueue, mRedoQueue;
 
     private String mOldText, mNewText;
     private int trackingState;
@@ -60,8 +60,8 @@ public class RunDoSupport extends Fragment implements RunDo {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mUndoQueue == null) mUndoQueue = new CustomArrayDeque<>(queueSize);
-        if (mRedoQueue == null) mRedoQueue = new CustomArrayDeque<>(queueSize);
+        if (mUndoQueue == null) mUndoQueue = new FixedSizeArrayDeque<>(queueSize);
+        if (mRedoQueue == null) mRedoQueue = new FixedSizeArrayDeque<>(queueSize);
 
     }
 
@@ -176,8 +176,8 @@ public class RunDoSupport extends Fragment implements RunDo {
     @Override
     public void setQueueSize(int size) {
         queueSize = size;
-        mUndoQueue = new CustomArrayDeque<>(queueSize);
-        mRedoQueue = new CustomArrayDeque<>(queueSize);
+        mUndoQueue = new FixedSizeArrayDeque<>(queueSize);
+        mRedoQueue = new FixedSizeArrayDeque<>(queueSize);
     }
 
     /**
