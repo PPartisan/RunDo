@@ -28,7 +28,7 @@ public class RunDoNative extends Fragment implements RunDo {
     private long countdownTimerLength;
     private int queueSize;
 
-    private FixedSizeArrayDeque<SubtractStrings> mUndoQueue, mRedoQueue;
+    private FixedSizeArrayDeque<SubtractStrings.Item> mUndoQueue, mRedoQueue;
 
     private String mOldText, mNewText;
     private int trackingState;
@@ -153,12 +153,12 @@ public class RunDoNative extends Fragment implements RunDo {
 
     /**
      *
-     * @see {@link WriteToArrayDeque#notifyArrayDequeDataReady(SubtractStrings)}
+     * @see {@link WriteToArrayDeque#notifyArrayDequeDataReady(com.werdpressed.partisan.rundo.SubtractStrings.Item)}
      */
     @Override
-    public void notifyArrayDequeDataReady(SubtractStrings subtractStrings) {
+    public void notifyArrayDequeDataReady(SubtractStrings.Item item) {
 
-        mUndoQueue.addFirst(subtractStrings);
+        mUndoQueue.addFirst(item);
 
         mOldText = mTextLink.getEditText().getText().toString();
 
@@ -216,7 +216,7 @@ public class RunDoNative extends Fragment implements RunDo {
 
         try {
 
-            SubtractStrings temp = mUndoQueue.poll();
+            SubtractStrings.Item temp = mUndoQueue.poll();
 
             switch (temp.getDeviationType()) {
                 case SubtractStrings.ADDITION:
@@ -272,7 +272,7 @@ public class RunDoNative extends Fragment implements RunDo {
 
         try {
 
-            SubtractStrings temp = mRedoQueue.poll();
+            SubtractStrings.Item temp = mRedoQueue.poll();
 
             switch (temp.getDeviationType()) {
                 case SubtractStrings.ADDITION:

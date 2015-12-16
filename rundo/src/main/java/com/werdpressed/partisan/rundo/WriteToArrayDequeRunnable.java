@@ -18,9 +18,9 @@ final class WriteToArrayDequeRunnable implements Runnable {
         String mNewString = mWriteToArrayDeque.get().getNewString();
         String mOldString = mWriteToArrayDeque.get().getOldString();
 
-        SubtractStrings mSubtractStrings = new SubtractStrings(mOldString, mNewString);
+        SubtractStrings.Item mItem = new SubtractStrings(mOldString, mNewString).getItem();
 
-        mWriteToArrayDeque.get().notifyArrayDequeDataReady(mSubtractStrings);
+        mWriteToArrayDeque.get().notifyArrayDequeDataReady(mItem);
 
         mWriteToArrayDeque.get().setIsRunning(false);
 

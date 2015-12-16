@@ -5,7 +5,7 @@ public interface WriteToArrayDeque {
     String getNewString();
     String getOldString();
 
-    void notifyArrayDequeDataReady(SubtractStrings subtractStrings);
+    void notifyArrayDequeDataReady(SubtractStrings.Item item);
 
     void setIsRunning(boolean isRunning);
 
