@@ -98,8 +98,7 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
         private Factory() { throw new AssertionError(); }
 
         @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        public static final RunDo getInstance(@NonNull android.app.FragmentManager fm,
-                                        @NonNull RunDo.TextLink callback) {
+        public static final RunDo getInstance(@NonNull android.app.FragmentManager fm) {
 
             RunDoNative frag = (RunDoNative) fm.findFragmentByTag(RunDo.TAG);
 
@@ -112,8 +111,7 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
 
         }
 
-        public static final RunDo getInstance(@NonNull android.support.v4.app.FragmentManager fm,
-                                        @NonNull RunDo.TextLink callback) {
+        public static final RunDo getInstance(@NonNull android.support.v4.app.FragmentManager fm) {
 
             RunDoSupport frag = (RunDoSupport) fm.findFragmentByTag(RunDo.TAG);
 

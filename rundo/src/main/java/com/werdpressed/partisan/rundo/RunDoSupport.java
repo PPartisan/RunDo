@@ -69,14 +69,20 @@ public class RunDoSupport extends Fragment implements RunDo {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mTextLink.getEditText().addTextChangedListener(this);
-
         if (savedInstanceState != null) {
             mUndoQueue = savedInstanceState.getParcelable(UNDO_TAG);
             mRedoQueue = savedInstanceState.getParcelable(REDO_TAG);
 
             trackingState = TRACKING_STARTED;
         }
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        mTextLink.getEditText().addTextChangedListener(this);
 
     }
 

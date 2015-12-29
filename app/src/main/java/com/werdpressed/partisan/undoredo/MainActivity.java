@@ -1,19 +1,15 @@
 package com.werdpressed.partisan.undoredo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
-import com.werdpressed.partisan.rundo.RunDo;
+import com.werdpressed.partisan.undoredo.activityexample.ActivityExampleActivity;
+import com.werdpressed.partisan.undoredo.fragmentexample.FragmentExampleActivity;
 
-public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener, RunDo.TextLink {
-
-    private EditText testEditTextOne;
-
-    private RunDo mRunDo;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,35 +17,30 @@ public class MainActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_main);
 
-        testEditTextOne = (EditText) findViewById(R.id.test_edit_text_1);
+        Button mActivityExampleButton = (Button) findViewById(R.id.activity_example_btn);
+        Button mFragmentExampleButton = (Button) findViewById(R.id.fragment_example_btn);
 
-        Button undoButton = (Button) findViewById(R.id.undo_button);
-        Button redoButton = (Button) findViewById(R.id.redo_button);
-
-        undoButton.setOnClickListener(this);
-        redoButton.setOnClickListener(this);
-
-        mRunDo = RunDo.Factory.getInstance(getSupportFragmentManager(), this);
+        mActivityExampleButton.setOnClickListener(this);
+        mFragmentExampleButton.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        int id = v.getId();
 
-        switch (id) {
-            case R.id.undo_button:
-                mRunDo.undo();
+        Intent intent;
+
+        switch (v.getId()) {
+            case R.id.activity_example_btn:
+                intent = new Intent(this, ActivityExampleActivity.class);
+                startActivity(intent);
                 break;
-            case R.id.redo_button:
-                mRunDo.redo();
+            case R.id.fragment_example_btn:
+                intent = new Intent(this, FragmentExampleActivity.class);
+                startActivity(intent);
                 break;
         }
 
     }
 
-    @Override
-    public EditText getEditText() {
-        return (testEditTextOne);
-    }
 }

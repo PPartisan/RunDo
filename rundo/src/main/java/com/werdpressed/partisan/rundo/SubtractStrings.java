@@ -98,6 +98,7 @@ final class SubtractStrings {
         for (int i = 0; i < shortestLength; i++) {
             if (oldTextReversed[i] != newTextReversed[i]) {
                 tempLastDeviation = i;
+                break;
             }
         }
 
