@@ -56,7 +56,54 @@ final class SubtractStrings {
         return shortestLength;
     }
 
-
+    /**
+     * Calculates the last point of deviation by reversing old and new text, and repeating the same
+     * process as {@link #findFirstDeviation()}. Different values are assigned for old and new text
+     * in order to effectively calculate what has changed between the two. This is especially
+     * relevant when text is replaced.
+     *
+     * Under certain circumstances, running both this and {@link #findFirstDeviation()} alone will
+     * produce incorrect results, especially when words are duplicated. For example:
+     *
+     * <pre>
+     *     {@code
+     *     int firstDeviation, lastDeviation;
+     *
+     *     char[] mOldText = new String("one").toCharArray();
+     *     char[] mNewText = new String("one one").toCharArray();
+     *
+     *     findFirstDeviation();
+     *     findLastDeviation();
+     *
+     *     String output = new String(mNewText).subString(firstDeviation, lastDeviation);
+     *
+     *     //firstDeviation will equal 3, last deviation 4, and "output" will be " ".
+     *     }
+     * </pre>
+     *
+     * This is because the first deviation comes after the first "e", at index 3, yet when the
+     * arrays are reversed, the "e" at the end of "one" in mOldText shifts to index 0. It is
+     * effectively counted twice:
+     *
+     * <pre>
+     *     {@code
+     *     char[] mOldText = new char[]{ 'o', 'n', 'e' }
+     *     char[] mNewText = new char[]{ 'o', 'n', 'e', ' ', 'o', 'n', 'e' };
+     *
+     *     mOldTextReversed = new char[]{ 'e', 'n', 'o' };
+     *     mNewTextReversed = new char[]{ 'e', 'n', 'o', ' ', 'e', 'n', 'o'};
+     *     }
+     * </pre>
+     *
+     * lastDeviation values are adjusted in {@link #findLastDeviationOffsetSize(char[], char[], int)}
+     * to account for such situations.
+     *
+     * @return Last point of deviation between old and new text, in relation to old text.
+     *
+     * @see #findLastDeviationNewText()
+     * @see #getLastDeviationOldText()
+     * @see Item#getLastDeviationOldText()
+     */
     private int findLastDeviationOldText() {
 
         if (isOldTextEqualToNewText()) return 0;
@@ -83,6 +130,16 @@ final class SubtractStrings {
 
     }
 
+    /**
+     * Identical process to {@link #findLastDeviationOldText()}, except value returned is in
+     * relation to new text.
+     *
+     * @return Last point of deviation between old and new text, in relation to new text.
+     *
+     * @see #findLastDeviationOldText()
+     * @see #getLastDeviationNewText()
+     * @see Item#getLastDeviationNewText()
+     */
     private int findLastDeviationNewText() {
 
         if (isOldTextEqualToNewText()) return 0;
@@ -109,6 +166,33 @@ final class SubtractStrings {
 
     }
 
+    /**
+     * Adjusts the last point at which the two {@code char[]} diverge, due to the reasons outlined in
+     * {@link #findLastDeviationOldText()}. This is achieved by calculating the difference in length between
+     * the old and new text, and comparing each {@code char} from this final end point to the char at the
+     * same position less the offset difference. If the same value is found, then the current
+     * index is used to determine the true last deviation value. For example:
+     *
+     * <pre>
+     *     {@code
+     *     mOldTextReversed = new char[]{ 'e', 'n', 'o' };
+     *     mNewTextReversed = new char[]{ 'e', 'n', 'o', ' ', 'e', 'n', 'o'};
+     *     }
+     * </pre>
+     *
+     * In this case, the potential offset size (the length of the longest array subtracted from the
+     * shortest) is {@code(7 - 3) = 4}. Thus, the char at index [4] of the longest array, which is
+     * 'e', is compared to the char at index[0] (4 - (potentialOffsetSize of 4) = 0), which is also
+     * 'e'. As the two values match, the final value returned is
+     * (length of the longest array - (current index - potential offset size)), which translates
+     * to (7 - (4 - 0)) = 3.
+     *
+     * @param oldText Reversed old text
+     * @param newText Reversed new text
+     * @param tempLastDeviation The current last deviation figure. This is the value that will be
+     *                          checked and possibly altered before being returned.
+     * @return The adjusted last deviation value.
+     */
     private int findLastDeviationOffsetSize(char[] oldText, char[] newText, int tempLastDeviation) {
 
         final char[] longestArray = (isNewTextLonger()) ? newText : oldText;
@@ -132,21 +216,7 @@ final class SubtractStrings {
             }
         }
 
-        return findLastDeviationOffsetSizeWithNoCharMatches(tempLastDeviation);
-
-    }
-
-    private int findLastDeviationOffsetSizeWithNoCharMatches(int tempLastDeviation) {
-
-        final int longestLength = findLongestLength();
-
-        if (firstDeviation == -1) firstDeviation = findFirstDeviation();
-        final boolean isLastDeviationAfterFirst =
-                ((longestLength - tempLastDeviation) > firstDeviation);
-
-        return  (isLastDeviationAfterFirst)
-                ? (longestLength)
-                : (longestLength - tempLastDeviation);
+        return findLongestLength();
 
     }
 
@@ -242,7 +312,7 @@ final class SubtractStrings {
      *
      * @return First deviation
      */
-    public int getFirstDeviation() {
+    int getFirstDeviation() {
 
         if (firstDeviation == -1) {
             firstDeviation = findFirstDeviation();
@@ -251,7 +321,7 @@ final class SubtractStrings {
         return  firstDeviation;
     }
 
-    public int getLastDeviationOldText() {
+    int getLastDeviationOldText() {
 
         if (lastDeviationOldText == -1) {
             lastDeviationOldText = (lastDeviationNewText == -1 )
@@ -262,7 +332,7 @@ final class SubtractStrings {
         return lastDeviationOldText;
     }
 
-    public int getLastDeviationNewText() {
+    int getLastDeviationNewText() {
 
         if (lastDeviationNewText == -1) {
             lastDeviationNewText = (lastDeviationOldText == -1)
@@ -278,7 +348,7 @@ final class SubtractStrings {
      * @return Deviation type, in the form of an int value. For a String representation, use
      * {@link #valueOfDeviation(int)} ()}
      */
-    public int getDeviationType() {
+    int getDeviationType() {
         if (deviationType == -1) {
             deviationType = findDeviationType();
         }
@@ -348,6 +418,12 @@ final class SubtractStrings {
 
     }
 
+    /**
+     *
+     * @return Encapsulates all important information relating to the differences between old and
+     * new text.
+     * @see com.werdpressed.partisan.rundo.SubtractStrings.Item
+     */
     public Item getItem() {
 
         if (mItem == null) {
@@ -364,6 +440,10 @@ final class SubtractStrings {
         return mItem;
     }
 
+    /**
+     * Model class which encapsulates all important pieces of information relating to the differences
+     * between two {@link String}s, calculated by {@link SubtractStrings}
+     */
     static final class Item implements Parcelable {
 
         private final int firstDeviation, lastDeviationOldText, lastDeviationNewText, deviationType;
@@ -394,26 +474,54 @@ final class SubtractStrings {
             alteredText = in.readString();
         }
 
+        /**
+         *
+         * @return First point of deviation between old and new text.
+         */
         public int getFirstDeviation() {
             return firstDeviation;
         }
 
+        /**
+         *
+         * @return Last point of deviation between old and new text, in relation to old text.
+         */
         public int getLastDeviationOldText() {
             return lastDeviationOldText;
         }
 
+        /**
+         *
+         * @return Last point of deviation between old and new text, in relation to new text.
+         */
         public int getLastDeviationNewText() {
             return lastDeviationNewText;
         }
 
+        /**
+         *
+         * @return Deviation type in the form of an {@code int}. Value will correlate to
+         * {@link #ADDITION}. {@link #REPLACEMENT}, {@link #DELETION} or {@link #UNCHANGED}. For
+         * a {@link String} representation, use {@link #valueOfDeviation(int)}
+         *
+         * @see #valueOfDeviation(int)
+         */
         public int getDeviationType() {
             return deviationType;
         }
 
+        /**
+         *
+         * @return Section of old text replaced by new text, if applicable.
+         */
         public String getReplacedText() {
             return replacedText;
         }
 
+        /**
+         *
+         * @return Section of new text replaced by old text, if applicable.
+         */
         public String getAlteredText() {
             return alteredText;
         }

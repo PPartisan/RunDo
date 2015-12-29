@@ -2,10 +2,19 @@ package com.werdpressed.partisan.rundo.utils;
 
 import java.util.Arrays;
 
+/**
+ * Static methods which operate on {@code char[]}, predominantly for use with
+ * {@link com.werdpressed.partisan.rundo.SubtractStrings}
+ */
 public final class SubtractStringUtils {
 
     private SubtractStringUtils() { throw new AssertionError(); }
 
+    /**
+     * Reverses input {@code char[]}.
+     * @param input {@code char[]} to reverse.
+     * @return input {@code char[]} reversed.
+     */
     public static char[] reverseCharArray(char[] input){
 
         char[] output = new char[input.length];
