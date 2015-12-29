@@ -7,7 +7,7 @@ __RunDo__ adds Undo/Redo functionality to `EditText` fields in Android.
 
 #### [View Releases](https://github.com/PPartisan/RunDo/releases/ "Changelogs")
 
-Current version is `v1.0.2`
+Current version is `v1.0.3`
 
 JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/JavaDoc/index.html "JavaDoc")
 
@@ -20,7 +20,7 @@ JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/Java
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:1.0.2'
+        compile 'com.werdpressed.partisan:rundo:1.0.3'
     }
     
 ##### maven
@@ -37,7 +37,7 @@ In addition to the dependency above, add:
 
 Recommended usage is via the following method:
 
-    RunDo.Factory.getInstance(FragmentManager fm, RunDo.TextLink textLink);
+    RunDo.Factory.getInstance(FragmentManager fm);
     
 To be used in the following way (as an example):
 
@@ -49,7 +49,7 @@ To be used in the following way (as an example):
         
         //...
     
-        mRunDo = RunDo.Factory.getInstance(getFragmentManager(), this);
+        mRunDo = RunDo.Factory.getInstance(getFragmentManager());
         mButton.setOnClickListener(this);
         
         //...
@@ -76,9 +76,9 @@ To be used in the following way (as an example):
         
     }
     
-_See the [**sample app**](https://github.com/PPartisan/RunDo/blob/master/app/src/main/java/com/werdpressed/partisan/undoredo/MainActivity.java) for a complete example_
+_See the [**sample app**](https://github.com/PPartisan/RunDo/blob/master/app/src/main/java/com/werdpressed/partisan/undoredo/) for a complete example_
 
-The `getInstance()` method requires a `FragmentManager` (whether [`android.app.FragmentManager`](http://developer.android.com/reference/android/app/FragmentManager.html) or [`android.suppoer.v4.app.FragmentManager`](http://developer.android.com/reference/android/support/v4/app/FragmentManager.html)) and [`RunDo.TextLink`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.TextLink.html) argument.
+The `getInstance()` method requires a `FragmentManager` (whether [`android.app.FragmentManager`](http://developer.android.com/reference/android/app/FragmentManager.html) or [`android.suppoer.v4.app.FragmentManager`](http://developer.android.com/reference/android/support/v4/app/FragmentManager.html)) argument.
 
 `RunDo` implementations extend either [`android.app.Fragment`](http://developer.android.com/reference/android/app/Fragment.html) or [`android.support.v4.app.Fragment`](http://developer.android.com/reference/android/support/v4/app/Fragment.html). 
 
