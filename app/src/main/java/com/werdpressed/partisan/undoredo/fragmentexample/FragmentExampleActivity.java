@@ -32,7 +32,7 @@ public class FragmentExampleActivity extends AppCompatActivity implements RunDo.
     }
 
     @Override
-    public EditText getEditText() {
+    public EditText getEditTextForRunDo() {
         return mEditorFragment.getEditText();
     }
 }

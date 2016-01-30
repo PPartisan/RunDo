@@ -18,8 +18,8 @@ public class RunDoSupport extends Fragment implements RunDo {
     private RunDo.TextLink mTextLink;
     private RunDo.Callbacks mCallbacks;
 
-    private final Handler mHandler;
-    private final WriteToArrayDequeRunnable mRunnable;
+    private Handler mHandler;
+    private WriteToArrayDequeRunnable mRunnable;
     private boolean isRunning;
 
     private long countdownTimerLength;
@@ -73,17 +73,21 @@ public class RunDoSupport extends Fragment implements RunDo {
             mUndoQueue = savedInstanceState.getParcelable(UNDO_TAG);
             mRedoQueue = savedInstanceState.getParcelable(REDO_TAG);
 
+            mOldText = savedInstanceState.getString(OLD_TEXT_TAG);
+
+            isRunning = savedInstanceState.getBoolean(CONFIG_CHANGE_TAG);
+
+            if(isRunning) startCountdownRunnable();
+
             trackingState = TRACKING_STARTED;
         }
 
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        mTextLink.getEditText().addTextChangedListener(this);
-
+    public void onResume() {
+        super.onResume();
+        mTextLink.getEditTextForRunDo().addTextChangedListener(this);
     }
 
     @Override
@@ -93,18 +97,24 @@ public class RunDoSupport extends Fragment implements RunDo {
         outState.putParcelable(UNDO_TAG, mUndoQueue);
         outState.putParcelable(REDO_TAG, mRedoQueue);
 
+        outState.putString(OLD_TEXT_TAG, mOldText);
+
+        outState.putBoolean(CONFIG_CHANGE_TAG, isRunning);
+
+        if (isRunning) stopCountdownRunnable();
+
     }
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mTextLink = null;
+        super.onDetach();
     }
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        if (mOldText == null) mOldText = mTextLink.getEditText().getText().toString();
+        if (mOldText == null) mOldText = mTextLink.getEditTextForRunDo().getText().toString();
 
         if (trackingState == TRACKING_ENDED) {
 
@@ -142,7 +152,7 @@ public class RunDoSupport extends Fragment implements RunDo {
      */
     @Override
     public String getNewString() {
-        mNewText = mTextLink.getEditText().getText().toString();
+        mNewText = mTextLink.getEditTextForRunDo().getText().toString();
         return mNewText;
     }
 
@@ -164,7 +174,7 @@ public class RunDoSupport extends Fragment implements RunDo {
 
         mUndoQueue.addFirst(item);
 
-        mOldText = mTextLink.getEditText().getText().toString();
+        mOldText = mTextLink.getEditTextForRunDo().getText().toString();
 
         trackingState = TRACKING_ENDED;
 
@@ -224,18 +234,18 @@ public class RunDoSupport extends Fragment implements RunDo {
 
             switch (temp.getDeviationType()) {
                 case SubtractStrings.ADDITION:
-                    mTextLink.getEditText().getText().delete(
+                    mTextLink.getEditTextForRunDo().getText().delete(
                             temp.getFirstDeviation(),
                             temp.getLastDeviationNewText()
                     );
                     break;
                 case SubtractStrings.DELETION:
-                    mTextLink.getEditText().getText().insert(
+                    mTextLink.getEditTextForRunDo().getText().insert(
                             temp.getFirstDeviation(),
                             temp.getReplacedText());
                     break;
                 case SubtractStrings.REPLACEMENT:
-                    mTextLink.getEditText().getText().replace(
+                    mTextLink.getEditTextForRunDo().getText().replace(
                             temp.getFirstDeviation(),
                             temp.getLastDeviationNewText(),
                             temp.getReplacedText());
@@ -246,7 +256,7 @@ public class RunDoSupport extends Fragment implements RunDo {
                     break;
             }
 
-            mTextLink.getEditText().setSelection(temp.getFirstDeviation());
+            mTextLink.getEditTextForRunDo().setSelection(temp.getFirstDeviation());
 
             mRedoQueue.addFirst(temp);
 
@@ -255,7 +265,7 @@ public class RunDoSupport extends Fragment implements RunDo {
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         } finally {
-            mOldText = mTextLink.getEditText().getText().toString();
+            mOldText = mTextLink.getEditTextForRunDo().getText().toString();
         }
 
     }
@@ -280,18 +290,18 @@ public class RunDoSupport extends Fragment implements RunDo {
 
             switch (temp.getDeviationType()) {
                 case SubtractStrings.ADDITION:
-                    mTextLink.getEditText().getText().insert(
+                    mTextLink.getEditTextForRunDo().getText().insert(
                             temp.getFirstDeviation(),
                             temp.getAlteredText());
                     break;
                 case SubtractStrings.DELETION:
-                    mTextLink.getEditText().getText().delete(
+                    mTextLink.getEditTextForRunDo().getText().delete(
                             temp.getFirstDeviation(),
                             temp.getLastDeviationOldText()
                     );
                     break;
                 case SubtractStrings.REPLACEMENT:
-                    mTextLink.getEditText().getText().replace(
+                    mTextLink.getEditTextForRunDo().getText().replace(
                             temp.getFirstDeviation(),
                             temp.getLastDeviationOldText(),
                             temp.getAlteredText());
@@ -303,7 +313,7 @@ public class RunDoSupport extends Fragment implements RunDo {
 
             }
 
-            mTextLink.getEditText().setSelection(temp.getFirstDeviation());
+            mTextLink.getEditTextForRunDo().setSelection(temp.getFirstDeviation());
 
             mUndoQueue.addFirst(temp);
 
@@ -312,7 +322,7 @@ public class RunDoSupport extends Fragment implements RunDo {
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         } finally {
-            mOldText = mTextLink.getEditText().getText().toString();
+            mOldText = mTextLink.getEditTextForRunDo().getText().toString();
         }
 
     }

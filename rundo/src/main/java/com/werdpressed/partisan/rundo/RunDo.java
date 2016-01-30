@@ -19,6 +19,8 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
 
     String UNDO_TAG = "undo_queue";
     String REDO_TAG = "redo_queue";
+    String OLD_TEXT_TAG = "old_text";
+    String CONFIG_CHANGE_TAG = "return_from_config_change";
 
     int DEFAULT_QUEUE_SIZE = 10;
     int DEFAULT_TIMER_LENGTH = 2000;
@@ -68,7 +70,7 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
          * @return The {@link EditText} to be monitored and updated by a {@link RunDo}
          * implementation.
          */
-        EditText getEditText();
+        EditText getEditTextForRunDo();
 
     }
 
@@ -98,7 +100,7 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
         private Factory() { throw new AssertionError(); }
 
         @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        public static final RunDo getInstance(@NonNull android.app.FragmentManager fm) {
+        public static RunDo getInstance(@NonNull android.app.FragmentManager fm) {
 
             RunDoNative frag = (RunDoNative) fm.findFragmentByTag(RunDo.TAG);
 
@@ -111,7 +113,7 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
 
         }
 
-        public static final RunDo getInstance(@NonNull android.support.v4.app.FragmentManager fm) {
+        public static RunDo getInstance(@NonNull android.support.v4.app.FragmentManager fm) {
 
             RunDoSupport frag = (RunDoSupport) fm.findFragmentByTag(RunDo.TAG);
 

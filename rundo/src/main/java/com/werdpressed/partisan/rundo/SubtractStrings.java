@@ -7,7 +7,6 @@ import com.werdpressed.partisan.rundo.utils.SubtractStringUtils;
 
 import java.util.Arrays;
 
-//Immutable
 final class SubtractStrings {
 
     @SuppressWarnings("unused")

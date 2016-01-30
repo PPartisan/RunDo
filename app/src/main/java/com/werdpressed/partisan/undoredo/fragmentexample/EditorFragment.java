@@ -20,13 +20,7 @@ public class EditorFragment extends Fragment implements View.OnClickListener {
     private RunDo mRunDo;
 
     public static EditorFragment newInstance() {
-
-        Bundle args = new Bundle();
-
-        EditorFragment fragment = new EditorFragment();
-        fragment.setArguments(args);
-        return fragment;
-
+        return new EditorFragment();
     }
 
     @Nullable

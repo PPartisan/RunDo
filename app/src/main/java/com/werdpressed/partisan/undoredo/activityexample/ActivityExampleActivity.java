@@ -52,7 +52,7 @@ public class ActivityExampleActivity extends AppCompatActivity implements
     }
 
     @Override
-    public EditText getEditText() {
+    public EditText getEditTextForRunDo() {
         return (testEditTextOne);
     }
 }
