@@ -9,7 +9,7 @@ __RunDo__ adds Undo/Redo functionality to `EditText` fields in Android.
 
 [ ![Download](https://api.bintray.com/packages/ppartisan/maven/rundo/images/download.svg) ](https://bintray.com/ppartisan/maven/rundo/_latestVersion)
 
-Current version is `v1.0.4`
+Current version is `v1.0.5`
 
 JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/JavaDoc/index.html "JavaDoc")
 
@@ -22,7 +22,7 @@ JavaDoc available at [ppartisan.github.io](http://ppartisan.github.io/RunDo/Java
 Add the following to your module's `build.gradle` file:
 
     dependencies {
-        compile 'com.werdpressed.partisan:rundo:1.0.4'
+        compile 'com.werdpressed.partisan:rundo:1.0.5'
     }
     
 ##### maven
