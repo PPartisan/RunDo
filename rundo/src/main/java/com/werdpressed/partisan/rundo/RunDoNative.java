@@ -82,7 +82,7 @@ public class RunDoNative extends Fragment implements RunDo {
 
             if(isRunning) startCountdownRunnable();
 
-            trackingState = TRACKING_STARTED;
+            trackingState = savedInstanceState.getInt(TRACKING_TAG);
         }
 
     }
@@ -106,6 +106,7 @@ public class RunDoNative extends Fragment implements RunDo {
 
         if (isRunning) stopCountdownRunnable();
 
+        outState.putInt(TRACKING_TAG, trackingState);
     }
 
     @Override

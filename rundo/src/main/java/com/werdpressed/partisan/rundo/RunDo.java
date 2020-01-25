@@ -21,6 +21,7 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
     String REDO_TAG = "redo_queue";
     String OLD_TEXT_TAG = "old_text";
     String CONFIG_CHANGE_TAG = "return_from_config_change";
+    String TRACKING_TAG = "tracking_state";
 
     int DEFAULT_QUEUE_SIZE = 10;
     int DEFAULT_TIMER_LENGTH = 2000;
