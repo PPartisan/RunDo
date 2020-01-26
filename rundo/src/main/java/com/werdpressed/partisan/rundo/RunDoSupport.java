@@ -211,6 +211,24 @@ public class RunDoSupport extends Fragment implements RunDo {
 
     /**
      *
+     * @see {@link RunDo#canUndo()}
+     */
+    @Override
+    public boolean canUndo() {
+        return isQueueEmpty(mUndoQueue);
+    }
+
+    /**
+     *
+     * @see {@link RunDo#canRedo()}
+     */
+    @Override
+    public boolean canRedo() {
+        return isQueueEmpty(mRedoQueue);
+    }
+
+    /**
+     *
      * @see {@link RunDo#undo()}
      */
     @Override

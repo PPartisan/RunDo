@@ -45,6 +45,18 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
     void setTimerLength(long lengthInMillis);
 
     /**
+     * @return True if any change is available to undo.
+     * @see #undo()
+     */
+    boolean canUndo();
+
+    /**
+     * @return True if any change is available to redo.
+     * @see #redo()
+     */
+    boolean canRedo();
+
+    /**
      * Updates attached {@link EditText} with text from the last entry in the undo queue, such that
      * it reverts to an earlier state.
      */
