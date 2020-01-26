@@ -131,3 +131,20 @@ Implement [`RunDo.Callbacks`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdp
     public void redoCalled() {
     }
     
+Additionally, following callbacks will be fired to signalize when a queue becomes empty or filled:
+
+    @Override
+    public void undoEmpty() {
+    }
+
+    @Override
+    public void redoEmpty() {
+    }
+
+    @Override
+    public void undoAvailable() {
+    }
+
+    @Override
+    public void redoAvailable() {
+    }
