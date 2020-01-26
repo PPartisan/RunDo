@@ -89,6 +89,28 @@ public interface RunDo extends TextWatcher, WriteToArrayDeque {
          */
         void redoCalled();
 
+        /**
+         * Fired when there are no further changes to undo
+         */
+        void undoEmpty();
+
+        /**
+         * Fired when there are no further changes to redo
+         */
+        void redoEmpty();
+
+        /**
+         * Fired when any change becomes available to undo.
+         * Only fired when previously no undo was available (see {@link #undoEmpty()})
+         */
+        void undoAvailable();
+
+        /**
+         * Fired when any change becomes available to redo.
+         * Only fired when previously no redo was available (see {@link #redoEmpty()})
+         */
+        void redoAvailable();
+
     }
 
     /**
