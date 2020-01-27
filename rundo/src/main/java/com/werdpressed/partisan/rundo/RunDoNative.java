@@ -218,7 +218,7 @@ public class RunDoNative extends Fragment implements RunDo {
      */
     @Override
     public boolean canUndo() {
-        return isQueueEmpty(mUndoQueue);
+        return !isQueueEmpty(mUndoQueue);
     }
 
     /**
@@ -227,7 +227,7 @@ public class RunDoNative extends Fragment implements RunDo {
      */
     @Override
     public boolean canRedo() {
-        return isQueueEmpty(mRedoQueue);
+        return !isQueueEmpty(mRedoQueue);
     }
 
     /**
