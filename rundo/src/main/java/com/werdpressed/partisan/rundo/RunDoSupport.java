@@ -388,7 +388,7 @@ public class RunDoSupport extends Fragment implements RunDo {
     }
 
     private static boolean isQueueEmpty(FixedSizeArrayDeque<SubtractStrings.Item> queue) {
-        return queue.peek() == null;
+        return queue == null || queue.peek() == null;
     }
 
     private void restartCountdownRunnableImmediately() {
