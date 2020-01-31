@@ -107,6 +107,11 @@ For example:
 
     }
     
+
+#### Retrieve the queues state
+
+Use [`canUndo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#canUndo()) or [`canRedo()`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#canRedo()) to know if any change is available to undo or redo.
+
 #### Tweaking Parameters
 
 There are two ways to customise `RunDo` objects; [`setQueueSize(int size)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#setQueueSize(int)) and [`setTimerLength(long lengthInMillis)`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdpressed/partisan/rundo/RunDo.html#setTimerLength(long)).
@@ -131,3 +136,20 @@ Implement [`RunDo.Callbacks`](http://ppartisan.github.io/RunDo/JavaDoc/com/werdp
     public void redoCalled() {
     }
     
+Additionally, following callbacks will be fired to signalize when a queue becomes empty or filled:
+
+    @Override
+    public void undoEmpty() {
+    }
+
+    @Override
+    public void redoEmpty() {
+    }
+
+    @Override
+    public void undoAvailable() {
+    }
+
+    @Override
+    public void redoAvailable() {
+    }

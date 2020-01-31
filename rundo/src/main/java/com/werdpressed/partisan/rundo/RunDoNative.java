@@ -122,7 +122,7 @@ public class RunDoNative extends Fragment implements RunDo {
         if (trackingState == TRACKING_ENDED) {
 
             //Redo Queue should only be required as response to Undo calls. Otherwise clear.
-            mRedoQueue.clear();
+            clearRedoQueue();
 
             startCountdownRunnable();
             trackingState = TRACKING_CURRENT;
@@ -175,7 +175,7 @@ public class RunDoNative extends Fragment implements RunDo {
     @Override
     public void notifyArrayDequeDataReady(SubtractStrings.Item item) {
 
-        mUndoQueue.addFirst(item);
+        fillUndoQueue(item);
 
         mOldText = mTextLink.getEditTextForRunDo().getText().toString();
 
@@ -214,6 +214,24 @@ public class RunDoNative extends Fragment implements RunDo {
 
     /**
      *
+     * @see {@link RunDo#canUndo()}
+     */
+    @Override
+    public boolean canUndo() {
+        return !isQueueEmpty(mUndoQueue);
+    }
+
+    /**
+     *
+     * @see {@link RunDo#canRedo()}
+     */
+    @Override
+    public boolean canRedo() {
+        return !isQueueEmpty(mRedoQueue);
+    }
+
+    /**
+     *
      * @see {@link RunDo#undo()}
      */
     @Override
@@ -226,14 +244,14 @@ public class RunDoNative extends Fragment implements RunDo {
 
         trackingState = TRACKING_STARTED;
 
-        if (mUndoQueue.peek() == null) {
+        if (isQueueEmpty(mUndoQueue)) {
             //Log.e(TAG, "Undo Queue Empty");
             return;
         }
 
         try {
 
-            SubtractStrings.Item temp = mUndoQueue.poll();
+            SubtractStrings.Item temp = pollUndoQueue();
 
             switch (temp.getDeviationType()) {
                 case SubtractStrings.ADDITION:
@@ -261,7 +279,7 @@ public class RunDoNative extends Fragment implements RunDo {
 
             mTextLink.getEditTextForRunDo().setSelection(temp.getFirstDeviation());
 
-            mRedoQueue.addFirst(temp);
+            fillRedoQueue(temp);
 
             if (mCallbacks != null) mCallbacks.undoCalled();
 
@@ -282,14 +300,14 @@ public class RunDoNative extends Fragment implements RunDo {
 
         trackingState = TRACKING_STARTED;
 
-        if (mRedoQueue.peek() == null) {
+        if (isQueueEmpty(mRedoQueue)) {
             //Log.e(TAG, "Redo Queue Empty");
             return;
         }
 
         try {
 
-            SubtractStrings.Item temp = mRedoQueue.poll();
+            SubtractStrings.Item temp = pollRedoQueue();
 
             switch (temp.getDeviationType()) {
                 case SubtractStrings.ADDITION:
@@ -318,7 +336,7 @@ public class RunDoNative extends Fragment implements RunDo {
 
             mTextLink.getEditTextForRunDo().setSelection(temp.getFirstDeviation());
 
-            mUndoQueue.addFirst(temp);
+            fillUndoQueue(temp);
 
             if (mCallbacks != null) mCallbacks.redoCalled();
 
@@ -336,8 +354,44 @@ public class RunDoNative extends Fragment implements RunDo {
      */
     @Override
     public void clearAllQueues() {
+        clearUndoQueue();
+        clearRedoQueue();
+    }
+
+    private void clearUndoQueue() {
         mUndoQueue.clear();
+        if (mCallbacks != null) mCallbacks.undoEmpty();
+    }
+
+    private void clearRedoQueue() {
         mRedoQueue.clear();
+        if (mCallbacks != null) mCallbacks.redoEmpty();
+    }
+
+    private SubtractStrings.Item pollUndoQueue() {
+      SubtractStrings.Item item = mUndoQueue.poll();
+      if (mCallbacks != null && isQueueEmpty(mUndoQueue)) mCallbacks.undoEmpty();
+      return item;
+    }
+
+    private SubtractStrings.Item pollRedoQueue() {
+      SubtractStrings.Item item = mRedoQueue.poll();
+      if (mCallbacks != null && isQueueEmpty(mRedoQueue)) mCallbacks.redoEmpty();
+      return item;
+    }
+
+    private void fillUndoQueue(SubtractStrings.Item item) {
+        if (mCallbacks != null && isQueueEmpty(mUndoQueue)) mCallbacks.undoAvailable();
+        mUndoQueue.addFirst(item);
+    }
+
+    private void fillRedoQueue(SubtractStrings.Item item) {
+        if (mCallbacks != null && isQueueEmpty(mRedoQueue)) mCallbacks.redoAvailable();
+        mRedoQueue.addFirst(item);
+    }
+
+    private static boolean isQueueEmpty(FixedSizeArrayDeque<SubtractStrings.Item> queue) {
+        return queue == null || queue.peek() == null;
     }
 
     private void restartCountdownRunnableImmediately() {
